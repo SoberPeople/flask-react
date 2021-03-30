@@ -3,11 +3,7 @@ import ssl;
 
 app = Flask(__name__)
 
-@app.route('/')
-def main():
-  return "Hello page"
-
-# @app.route('/', defaults={'path': ''})
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def web(path):
   if(path == 'first' or path == 'second') :
@@ -16,6 +12,8 @@ def web(path):
     return render_template('host.html');
   elif(path == 'guest'):
     return render_template('guest.html');
+  else:
+    return "Hello Page"
     
 
 if __name__ == "__main__":
