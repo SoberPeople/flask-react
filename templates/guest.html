@@ -12,8 +12,8 @@
     <table class="control">
       <tr>
         <td class="title">Status:</td>
-        <td class="title">Messages:</td>
-        <td class="title">학번:</td>
+        <td class="title">Student ID:</td>
+        <td class="title">Messages:</td>  
       </tr>
       <tr>
         <td>
@@ -22,8 +22,18 @@
             type="text"
             id="receiver-id"
             title="Input the ID from receive.html"
+            placeholder="Enter Room url..."
           />
-          <button id="connect-button">Connect</button>
+          
+        </td>
+        <td>
+            <input 
+            type="text" 
+            id="studentId" 
+            placeholder="Enter a student id..." 
+            autofocus="true" 
+            />
+            <button id="connect-button" style="margin-right: 3rem">Connect</button>
         </td>
         <td>
           <input
@@ -34,14 +44,6 @@
           />
           <button type="button" id="sendButton">Send</button>
           <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
-        </td>
-        <td>
-          <input
-            type="text"
-            id="studentId"
-            placeholder="Enter a student id..."
-            autofocus="true"
-          />
         </td>
       </tr>
       <tr>
@@ -73,7 +75,7 @@
         var clearMsgsButton = document.getElementById("clearMsgsButton");
         var connectButton = document.getElementById("connect-button");
         var cueString = '<span class="cueMsg">Cue: </span>';
-        var videoId = document.getElementById("studentId");
+        var userId = document.getElementById("studentId");
 
         /**
          * guest의 peer 초기화
@@ -163,6 +165,10 @@
             reliable: true,
           });
 
+          // 호스트에게 userId 전송
+          conn.send(userId.value);
+          console.log("Sent userId: " + userId.value);
+
           // 호스트 peer 접속 후 로그
           conn.on("open", function () {
             status.innerHTML = "Connected to: " + conn.peer;
@@ -194,6 +200,10 @@
             // 출력한 remote stream 캐싱
             remoteStreams[remoteStream.id] = remoteStream;
           });
+
+          /*호스트에게 내 아이디 알려주기
+          */
+          
 
           // 호스트가 새로 접속한 나머지 guest를 보내줄수 있도록 화상통화 대기
           peer.on("call", function (call) {
@@ -300,7 +310,15 @@
         // Clear messages box
         clearMsgsButton.addEventListener("click", clearMessages);
         // Start peer connection on click
-        connectButton.addEventListener("click", join);
+        // connectButton.addEventListener("click", join);
+        connectButton.addEventListener("click", function() {
+          if (userId.value == "") {
+            alert('User Id를 입력하세요. \n입력하지 않으면 참가할 수 없습니다.');
+            return;
+          } //userId 입력 여부 확인
+          
+          join(); 
+        });
 
         // Since all our callbacks are setup, start the process of obtaining an ID
         initialize();
