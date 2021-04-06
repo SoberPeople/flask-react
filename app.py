@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory,request, redirect, url_for, session, send_file, Response
+from flask import Flask, render_template, request, redirect, url_for, session, send_file, Response
 import ssl;
 import cv2
 from yolo import YOLO
@@ -30,26 +30,16 @@ else:
 yolo.size = int(size)
 yolo.confidence = float(confidence)
 
-@app.route('/')
-def main():
-  return "Hello page"
 
-# @app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def web(path):
-  if(path == 'first' or path == 'second') :
-    return render_template('index.html');
-  elif(path == 'host'):
-    return render_template('host.html');
-  elif(path == 'guest'):
-    return render_template('guest.html');
-    
 @app.route('/api/detection/', methods=['GET'])
 def detection(stream):
+  # videostream을 받아오기
+  # detection(videostream)
   mat = stream
   width, height, inference_time, results = yolo.inference(mat)
 
-  print("%s seconds: %s classes found!" % (round(inference_time, 2), len(results)))
+  print("%s seconds: %s classes found!" %
+        (round(inference_time, 2), len(results)))
 
   if len(results) < 1:
       return json.dumps({"nums_of_hand": 0})
@@ -67,8 +57,24 @@ def detection(stream):
       print("%s with %s confidence" % (name, round(confidence, 2)))
   output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
   cv2.imwrite(output_path, mat)
-
   return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path>')
+def web(path):
+  if(path == 'first' or path == 'second') :
+    return render_template('index.html');
+  elif(path == 'host'):
+    return render_template('host.html');
+  elif(path == 'guest'):
+    return render_template('guest.html');
+  else:
+    return "Hello page";
+
+#this is for testing routind success
+# def test():
+#   return "Success!"
 
 if __name__ == "__main__":
   app.run(host="127.0.0.1", port="5000", debug=True, ssl_context=(
