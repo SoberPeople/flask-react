@@ -27,8 +27,9 @@
                 <td><div class="message" id="message"></div></td>
             </tr>
             <tr>
-                <td colspan="2" class="display-box standby" id="video_grid">
-
+                <td>
+                    <video id="video_grid" playsinline autoplay></video>
+                </td>
                 </td>
             </tr>
         </table>
@@ -54,7 +55,7 @@
                 var sendMessageBox = document.getElementById("sendMessageBox");
                 var sendButton = document.getElementById("sendButton");
                 var clearMsgsButton = document.getElementById("clearMsgsButton");
-
+                const leftVideo = document.getElementById('video_grid');
                 /**
                  * 호스트 초기화 함수
                  */
@@ -283,25 +284,30 @@
                         }
                     }
                 });
-                const leftVideo = document.getElementById('video-grid');
-                leftVideo.addEventListener('canplay', () => {
-                    let stream;
+                
+                /*leftVideo.addEventListener('canplay', () => {
+                    let stream = new FormData();
                     const fps = 5;
-                    if (leftVideo.captureStream) {
-                        stream = leftVideo.captureStream(fps);
-                        axios.post('/api/detection/', stream)
-                            .then(response => {
-                                if (response.data.success) {
+                    while (true){
+                        if(leftVideo.captureStream) {
+                        stream.append("file",leftVideo.captureStream(fps))
+                        console.log("Send file")
+                        axios.post('/api/detection', stream)
+                            .then(response => { alert('전송성공')
+                                /*if (response.data==true) {
                                     console.log("정상");
                                 } else {
                                     console.log("부정행위 의심");
                                 }
                             })
-                    } else {
-                        console.error('Stream capture is not supported');
-                        stream = null;
+                        } else {
+                            console.error('Stream capture is not supported');
+                            stream = null;
+                            break;
+                        }
                     }
                 });
+            */
                 // Clear messages box
                 clearMsgsButton.addEventListener('click', clearMessages);
 
