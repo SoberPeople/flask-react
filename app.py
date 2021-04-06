@@ -31,11 +31,11 @@ yolo.size = int(size)
 yolo.confidence = float(confidence)
 
 
-@app.route('/api/detection/', methods=['GET'])
-def detection(stream):
-  # videostream을 받아오기
-  # detection(videostream)
-  mat = stream
+@app.route('/api/detection/', methods=['GET','POST'])
+def detection():
+  if (request.method == 'POST'):
+      mat = request.form.get('file')
+  return mat
   width, height, inference_time, results = yolo.inference(mat)
 
   print("%s seconds: %s classes found!" %

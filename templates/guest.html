@@ -128,10 +128,10 @@
                 let sendstream = new FormData ();
                 setInterval(()=>{
                     let imageCapture = new ImageCapture(track);
-                    sendstream.append("file",imageCapture)
-                    axios.get('/detection/', sendstream)
+                    sendstream.append("file", imageCapture)
+                    axios.post('/detection/', sendstream)
                     .then(response =>  console.log('전송성공'))
-                    },300)
+                    },6000)
 
             }, function (err) {
                 console.log('Failed to get local stream', err);
