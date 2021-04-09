@@ -8,39 +8,56 @@
 </head>
 <body>
 <h1>Peer-to-Peer Cue System --- Sender</h1>
-
 <table class="control">
-    <tr>
+      <tr>
         <td class="title">Status:</td>
-        <td class="title">Messages:</td>
-    </tr>
-    <tr>
+        <td class="title">Student ID:</td>
+        <td class="title">Messages:</td>  
+      </tr>
+      <tr>
         <td>
-            <span style="font-weight: bold">ID: </span>
-            <input type="text" id="receiver-id" title="Input the ID from receive.html">
-            <button id="connect-button">Connect</button>
-        </td>
-        <td>
-            <input type="text" id="sendMessageBox" placeholder="Enter a message..." autofocus="true"/>
-            <button type="button" id="sendButton">Send</button>
-            <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <div id="status" class="status"></div>
+          <span style="font-weight: bold">ID: </span>
+          <input
+            type="text"
+            id="receiver-id"
+            title="Input the ID from receive.html"
+            placeholder="Enter Room url..."
+          />
+          
         </td>
         <td>
-            <div class="message" id="message"></div>
+            <input 
+            type="text" 
+            id="studentId" 
+            placeholder="Enter a student id..." 
+            autofocus="true" 
+            />
+            <button id="connect-button" style="margin-right: 3rem">Connect</button>
         </td>
-    </tr>
-    <tr>
-        <td colspan="2" class="display-box standby" id="video_grid">
-
+        <td>
+          <input
+            type="text"
+            id="sendMessageBox"
+            placeholder="Enter a message..."
+            autofocus="true"
+          />
+          <button type="button" id="sendButton">Send</button>
+          <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
         </td>
-    </tr>
+      </tr>
+      <tr>
+        <td>
+          <div id="status" class="status"></div>
+        </td>
+        <td>
+          <div class="message" id="message"></div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="display-box standby" id="video_grid"></td>
+      </tr>
 </table>
-
+  
 <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
@@ -59,6 +76,7 @@
         var clearMsgsButton = document.getElementById("clearMsgsButton");
         var connectButton = document.getElementById("connect-button");
         var cueString = "<span class=\"cueMsg\">Cue: </span>";
+        var userId = document.getElementById("studentId");
         axios.defaults.baseURL="https://127.0.0.1:5000/api"
     
         /**
@@ -153,6 +171,10 @@
             conn = peer.connect(recvIdInput.value, {
                 reliable: true
             });
+          
+          // 호스트에게 userId 전송
+          conn.send(userId.value);
+          console.log("Sent userId: " + userId.value);
 
             // 호스트 peer 접속 후 로그
             conn.on('open', function () {
@@ -288,9 +310,17 @@
         });
 
         // Clear messages box
-        clearMsgsButton.addEventListener('click', clearMessages);
+        clearMsgsButton.addEventListener("click", clearMessages);
         // Start peer connection on click
-        connectButton.addEventListener('click', join);
+        // connectButton.addEventListener("click", join);
+        connectButton.addEventListener("click", function() {
+          if (userId.value == "") {
+            alert('User Id를 입력하세요. \n입력하지 않으면 참가할 수 없습니다.');
+            return;
+          } //userId 입력 여부 확인
+          
+          join(); 
+        });
 
         // Since all our callbacks are setup, start the process of obtaining an ID
         initialize();
