@@ -136,7 +136,7 @@
                 alert('' + err);
             });
 
-            //guest의 캠화면 출력
+            //guest의 캠화면 출력, host에게 image로 send
             var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
             getUserMedia({video: true, audio: true}, function (stream) {
                 addVideo(stream);
