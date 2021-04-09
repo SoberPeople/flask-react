@@ -27,13 +27,16 @@
                 <td><div class="message" id="message"></div></td>
             </tr>
             <tr>
-                <td colspan="2" class="display-box standby" id="video_grid">
-
+                <td>
+                    <video id="video_grid" playsinline autoplay></video>
+                </td>
                 </td>
             </tr>
         </table>
 
         <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
         <script type="text/javascript">
             (function () {
 
@@ -54,7 +57,7 @@
                 var sendMessageBox = document.getElementById("sendMessageBox");
                 var sendButton = document.getElementById("sendButton");
                 var clearMsgsButton = document.getElementById("clearMsgsButton");
-
+                const leftVideo = document.getElementById('video_grid');
                 /**
                  * 호스트 초기화 함수
                  */
@@ -288,7 +291,30 @@
                         }
                     }
                 });
-
+                
+                /*leftVideo.addEventListener('canplay', () => {
+                    let stream = new FormData();
+                    const fps = 5;
+                    while (true){
+                        if(leftVideo.captureStream) {
+                        stream.append("file",leftVideo.captureStream(fps))
+                        console.log("Send file")
+                        axios.post('/api/detection', stream)
+                            .then(response => { alert('전송성공')
+                                /*if (response.data==true) {
+                                    console.log("정상");
+                                } else {
+                                    console.log("부정행위 의심");
+                                }
+                            })
+                        } else {
+                            console.error('Stream capture is not supported');
+                            stream = null;
+                            break;
+                        }
+                    }
+                });
+            */
                 // Clear messages box
                 clearMsgsButton.addEventListener('click', clearMessages);
 
@@ -297,3 +323,4 @@
         </script>
     </body>
 </html>
+
