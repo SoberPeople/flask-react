@@ -5,6 +5,8 @@ from yolo import YOLO
 import json
 import uuid
 import os
+import base64
+import numpy as np
 
 app = Flask(__name__)
 
@@ -38,29 +40,49 @@ yolo.confidence = float(confidence)
 def detection():
     if (request.method == 'POST'):
         mat = request.form.get('file')
-    return mat
-    width, height, inference_time, results = yolo.inference(mat)
+        ### save image to file
+        # imgdata= base64.b64decode(mat.replace('data:image/png;base64,',''))
+        # f=open('yo.png','wb')
+        # f.write(imgdata)
+        # f.close()
+        ###
 
-    print("%s seconds: %s classes found!" %
-          (round(inference_time, 2), len(results)))
+        # print(mat)
+        # print(request.form)
+        # img = cv2.imread(mat)
+        # cv2.imwrite('yo.png',img)
+        # print(mat)
 
-    if len(results) < 1:
-        return json.dumps({"nums_of_hand": 0})
+        #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
+         img_data = np.fromstring(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
+         img = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
+         cv2.imwrite('mm.png',img)
 
-    for detection in results:
-        id, name, confidence, x, y, w, h = detection
+        # img=cv2.imread('2hands.jpg',cv2.IMREAD_COLOR)
+        
+        width, height, inference_time, results = yolo.inference(img)
+        print(results)
+        
+        print("%s seconds: %s classes found!" %
+            (round(inference_time, 2), len(results)))
 
-        # draw a bounding box rectangle and label on the image
-        color = (255, 0, 255)
-        cv2.rectangle(mat, (x, y), (x + w, y + h), color, 1)
-        text = "%s (%s)" % (name, round(confidence, 2))
-        cv2.putText(mat, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.25, color, 1)
+        if len(results) < 1:
+            return json.dumps({"nums_of_hand": 0})
 
-        print("%s with %s confidence" % (name, round(confidence, 2)))
-    output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
-    cv2.imwrite(output_path, mat)
-    return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
+        for detection in results:
+            id, name, confidence, x, y, w, h = detection
+
+            # draw a bounding box rectangle and label on the image
+            color = (255, 0, 255)
+            cv2.rectangle(mat, (x, y), (x + w, y + h), color, 1)
+            text = "%s (%s)" % (name, round(confidence, 2))
+            cv2.putText(mat, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.25, color, 1)
+
+            print("%s with %s confidence" % (name, round(confidence, 2)))
+        output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
+        cv2.imwrite(output_path, mat)
+        return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
 
 
 @app.route('/', defaults={'path': ''})
