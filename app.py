@@ -47,20 +47,20 @@ def detection():
         # f.close()
         ###
 
-        # print(mat)
+        # print(mat[:30])
         # print(request.form)
         # img = cv2.imread(mat)
         # cv2.imwrite('yo.png',img)
         # print(mat)
 
         #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
-        img_data = np.fromstring(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
-        img = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
-        cv2.imwrite('mm.png',img)
+        img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
+        mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
+        cv2.imwrite('mm.png', mat) 
 
         # img=cv2.imread('2hands.jpg',cv2.IMREAD_COLOR)
         
-        width, height, inference_time, results = yolo.inference(img)
+        width, height, inference_time, results = yolo.inference(mat)
         print(results)
         
         print("%s seconds: %s classes found!" %
@@ -81,6 +81,7 @@ def detection():
 
             print("%s with %s confidence" % (name, round(confidence, 2)))
         output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
+        # output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
         cv2.imwrite(output_path, mat)
         return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
 
@@ -99,5 +100,5 @@ def web(path):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port="5000", debug=True, ssl_context=(
+    app.run(host="0.0.0.0", port="5000", debug=True, ssl_context=(
         './ssl/localhost.crt', './ssl/localhost.key'))
