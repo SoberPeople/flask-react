@@ -54,9 +54,9 @@ def detection():
         # print(mat)
 
         #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
-         img_data = np.fromstring(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
-         img = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
-         cv2.imwrite('mm.png',img)
+        img_data = np.fromstring(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
+        img = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
+        cv2.imwrite('mm.png',img)
 
         # img=cv2.imread('2hands.jpg',cv2.IMREAD_COLOR)
         
