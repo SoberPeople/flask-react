@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import DribbleButton from "react-dribble-button";
 import "./Home.css";
+import Host from "./Host";
+import Guest from "./Host";
 
 export default class Home extends Component {
   render() {
