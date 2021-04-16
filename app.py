@@ -10,7 +10,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-network = 'prn'
+network = 'normal'
 size = 416
 confidence = 0.25
 output_dir = './output_images'
