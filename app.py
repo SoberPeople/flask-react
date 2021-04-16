@@ -7,13 +7,11 @@ import uuid
 import os
 import base64
 import numpy as np
-#gaze 설정
-import cv2
 from gaze_tracking import GazeTracking
 
 app = Flask(__name__)
 
-network = 'prn'
+network = 'normal'
 size = 416
 confidence = 0.25
 output_dir = './output_images'
@@ -45,19 +43,17 @@ yolo.confidence = float(confidence)
 @app.route('/api/detection/', methods=['GET', 'POST'])
 def detection():
     mat = request.form.get('file')
+    #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
     img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
     mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
 
-    if (request.method == 'POST'):
-        
+    if (request.method == 'POST'):        
         
         # print(mat[:30])
         # print(request.form)
         # img = cv2.imread(mat)
         # cv2.imwrite('yo.png',img)
         # print(mat)
-
-        #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
         
         # cv2.imwrite('mm.png', mat) 
         
@@ -66,7 +62,8 @@ def detection():
         print("%s seconds: %s classes found!" %
             (round(inference_time, 2), len(results)))
 
-        if len(results) < 1:
+        ## 여기에 사진 저장(값 0이면 캡쳐)
+        if len(results) < 1: 
             return json.dumps({"nums_of_hand": 0})
 
         for detection in results:
@@ -80,42 +77,38 @@ def detection():
                         0.25, color, 1)
 
             print("%s with %s confidence" % (name, round(confidence, 2)))
-        
-        
+                
 
         ### gaze_Tracking ###
         # while True:
-            # We get a new frame from the webcam
-            # _, 
-            frame = mat
+        # We get a new frame from the webcam
+        # _, 
+        frame = mat
 
-            # We send this frame to GazeTracking to analyze it
-            gaze.refresh(frame)
+        # We send this frame to GazeTracking to analyze it
+        gaze.refresh(frame)
 
-            frame = gaze.annotated_frame()
-            text = ""
+        frame = gaze.annotated_frame()
+        text = ""
 
-            if gaze.is_right():
-                text = "Looking right"
-            elif gaze.is_left():
-                text = "Looking left"
-            elif gaze.is_center():
-                text = "Looking center"
-            elif gaze.is_up():
-                text = "Looking up"
+        if gaze.is_right():
+            text = "Looking right"
+        elif gaze.is_left():
+            text = "Looking left"
+        elif gaze.is_center():
+            text = "Looking center"
+        elif gaze.is_up():
+            text = "Looking up"
 
-            cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
-            left_pupil = gaze.pupil_left_coords()
-            right_pupil = gaze.pupil_right_coords()
-            cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-            cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        left_pupil = gaze.pupil_left_coords()
+        right_pupil = gaze.pupil_right_coords()
+        cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
-            # cv2.imshow("Demo", frame)
-            # print(frame)
-
-            # if cv2.waitKey(1) == 27:
-            #     break
+        # if cv2.waitKey(1) == 27:
+        #     break
 
         output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")        
         cv2.imwrite(output_path, frame)
