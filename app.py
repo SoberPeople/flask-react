@@ -8,8 +8,25 @@ import os
 import base64
 import numpy as np
 from gaze_tracking import GazeTracking
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/detection/": {"origins": "*"}})
+
+@app.route('/<path>')
+def web(path):
+    return render_template('index.html')
+
+
+@app.route('/test/host')
+def host():
+    return render_template('host.html')
+
+
+@app.route('/test/guest')
+def guest():
+    return render_template('guest.html')
+
 
 network = 'normal'
 size = 416
@@ -43,26 +60,26 @@ yolo.confidence = float(confidence)
 def detection():
     mat = request.form.get('file')
     #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
-    img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8) 
+    img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8)
     mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
 
-    if (request.method == 'POST'):        
-        
+    if (request.method == 'POST'):
+
         # print(mat[:30])
         # print(request.form)
         # img = cv2.imread(mat)
         # cv2.imwrite('yo.png',img)
         # print(mat)
-        
-        # cv2.imwrite('mm.png', mat) 
-        
+
+        # cv2.imwrite('mm.png', mat)
+
         width, height, inference_time, results = yolo.inference(mat)
-                
+
         print("%s seconds: %s classes found!" %
             (round(inference_time, 2), len(results)))
 
         ## 여기에 사진 저장(값 0이면 캡쳐)
-        if len(results) < 1: 
+        if len(results) < 1:
             return json.dumps({"nums_of_hand": 0})
 
         for detection in results:
@@ -76,12 +93,12 @@ def detection():
                         0.25, color, 1)
 
             print("%s with %s confidence" % (name, round(confidence, 2)))
-                
+
 
         ### gaze_Tracking ###
         # while True:
         # We get a new frame from the webcam
-        # _, 
+        # _,
         frame = mat
 
         # We send this frame to GazeTracking to analyze it
@@ -109,22 +126,22 @@ def detection():
         # if cv2.waitKey(1) == 27:
         #     break
 
-        output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")        
+        output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
         cv2.imwrite(output_path, frame)
         return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path>')
-def web(path):
-    if(path == 'first' or path == 'second'):
-        return render_template('index.html')
-    elif(path == 'host'):
-        return render_template('host.html')
-    elif(path == 'guest'):
-        return render_template('guest.html')
-    else:
-        return "Hello Page"
+# @app.route('/', defaults={'path': ''})
+# @app.route('/<path>')
+# def web(path):
+#     if(path == 'first' or path == 'second'):
+#         return render_template('index.html')
+#     elif(path == 'host'):
+#         return render_template('host.html')
+#     elif(path == 'guest'):
+#         return render_template('guest.html')
+#     else:
+#         return "Hello Page"
 
 
 if __name__ == "__main__":
