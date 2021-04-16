@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Peer-to-Peer Cue System --- Sender</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Peer-to-Peer Cue System --- Sender</h1>
+    <table class="control">
+      <tr>
+        <td class="title">Status:</td>
+        <td class="title">Student ID:</td>
+        <td class="title">Messages:</td>
+      </tr>
+      <tr>
+        <td>
+          <span style="font-weight: bold">ID: </span>
+          <input
+            type="text"
+            id="receiver-id"
+            title="Input the ID from receive.html"
+            placeholder="Enter Room url..."
+          />
+        </td>
+        <td>
+          <input
+            type="text"
+            id="studentId"
+            placeholder="Enter a student id..."
+            autofocus="true"
+          />
+          <button id="connect-button" style="margin-right: 3rem">
+            Connect
+          </button>
+        </td>
+        <td>
+          <input
+            type="text"
+            id="sendMessageBox"
+            placeholder="Enter a message..."
+            autofocus="true"
+          />
+          <button type="button" id="sendButton">Send</button>
+          <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div id="status" class="status"></div>
+        </td>
+        <td>
+          <div class="message" id="message"></div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="display-box standby" id="video_grid"></td>
+      </tr>
+    </table>
+
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+      (function () {
+        var lastPeerId = null;
+        var peer = null; // own peer object
+        var conn = null;
+        var myStream = null;
+        var remoteStreams = {};
+        var recvIdInput = document.getElementById("receiver-id");
+        var status = document.getElementById("status");
+        var message = document.getElementById("message");
+        var sendMessageBox = document.getElementById("sendMessageBox");
+        var sendButton = document.getElementById("sendButton");
+        var clearMsgsButton = document.getElementById("clearMsgsButton");
+        var connectButton = document.getElementById("connect-button");
+        var cueString = '<span class="cueMsg">Cue: </span>';
+        var userId = document.getElementById("studentId");
+        axios.defaults.baseURL = "https://10.200.172.151:5000/api";
+
+        /**
+         * guest의 peer 초기화
+         */
+        function initialize() {
+          // Create own peer object with connection to shared PeerJS server
+          peer = new Peer(null, {
+            debug: 2,
+          });
+
+          //peerjs 클라우드 서버에 연결되면 guest의 peer id 저장
+          peer.on("open", function (id) {
+            // Workaround for peer.reconnect deleting previous id
+            if (peer.id === null) {
+              console.log("Received null id from peer open");
+              peer.id = lastPeerId;
+            } else {
+              lastPeerId = peer.id;
+            }
+
+            console.log("ID: " + peer.id);
+          });
+
+          //guest peer로 연결들어오는건 차단
+          peer.on("connection", function (c) {
+            // Disallow incoming connections
+            c.on("open", function () {
+              c.send("Sender does not accept incoming connections"); //remote에게 보내기
+              setTimeout(function () {
+                c.close();
+              }, 500);
+            });
+          });
+
+          //peer 접속 끊기면 재접속
+          peer.on("disconnected", function () {
+            status.innerHTML = "Connection lost. Please reconnect";
+            console.log("Connection lost. Please reconnect");
+
+            // Workaround for peer.reconnect deleting previous id
+            peer.id = lastPeerId;
+            peer._lastServerId = lastPeerId;
+            peer.reconnect();
+          });
+
+          //peer close됐을 때 처리
+          peer.on("close", function () {
+            conn = null;
+            status.innerHTML = "Connection destroyed. Please refresh";
+            console.log("Connection destroyed");
+          });
+
+          //에러처리
+          peer.on("error", function (err) {
+            console.log(err);
+            alert("" + err);
+          });
+
+          //guest의 캠화면 출력, host에게 image로 send
+          var getUserMedia =
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia;
+          getUserMedia(
+            { video: true, audio: true },
+            function (stream) {
+              addVideo(stream);
+              myStream = stream;
+              document.querySelector("video").srcObject = myStream;
+              const track = myStream.getVideoTracks()[0];
+              setInterval(() => {
+                let imageCapture = new ImageCapture(track);
+                console.log(imageCapture);
+                let sendstream = new FormData();
+
+                imageCapture
+                  .takePhoto()
+                  .then(function (blob) {
+                    console.log("Took photo:", blob);
+
+                    // img.classList.remove('hidden'); //hidden으로 지정한 클래스 제거 -> 에러 x
+                    // img.src = URL.createObjectURL(blob);
+                    // console.log(URL.createObjectURL(blob));
+
+                    var reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function () {
+                      // sendstream.append("fname", "yo.png");
+                      // sendstream.append("file", blob);
+                      sendstream.append("file", reader.result);
+                      axios
+                        .post("/detection/", sendstream)
+
+                        .then((response) => console.log("전송성공"));
+                    };
+                  })
+                  .catch(function (error) {
+                    console.log("takePhoto() error: ", error);
+                  });
+              }, 6000);
+            },
+            function (err) {
+              console.log("Failed to get local stream", err);
+            }
+          );
+        }
+
+        /**
+         * host peer에 접속하는 함수
+         */
+        function join() {
+          // Close old connection
+          if (conn) {
+            conn.close();
+          }
+
+          // 호스트 peer에 접속
+          conn = peer.connect(recvIdInput.value, {
+            reliable: true,
+          });
+
+          // 호스트에게 userId 전송
+          conn.send(userId.value);
+          console.log("Sent userId: " + userId.value);
+
+          // 호스트 peer 접속 후 로그
+          conn.on("open", function () {
+            status.innerHTML = "Connected to: " + conn.peer;
+            console.log("Connected to: " + conn.peer);
+
+            // Check URL params for comamnds that should be sent immediately
+            var command = getUrlParam("command");
+            if (command) conn.send(command);
+          });
+
+          // 호스트를 통해서 현재 guest로 채팅 들어오면 화면에 출력
+          conn.on("data", function (data) {
+            addMessage('<span class="peerMsg">Peer:</span> ' + data);
+          });
+          conn.on("close", function () {
+            status.innerHTML = "Connection closed";
+          });
+
+          // 호스트 peer로 화상접속
+          var callToHost = peer.call(recvIdInput.value, myStream);
+          // 호스트에서 보내주는 remote stream 화면에 출력
+          callToHost.on("stream", function (remoteStream) {
+            // 이미 출력된 remote stream은 출력하지 않음
+            if (remoteStreams[remoteStream.id]) {
+              return;
+            }
+            console.log("call peer", remoteStream.id);
+            addVideo(remoteStream);
+            // 출력한 remote stream 캐싱
+            remoteStreams[remoteStream.id] = remoteStream;
+          });
+
+          // 호스트가 새로 접속한 나머지 guest를 보내줄수 있도록 화상통화 대기
+          peer.on("call", function (call) {
+            var remotePeer = call.peer;
+            console.log("got remote peer", remotePeer);
+
+            // 호스트로 응답
+            call.answer(myStream);
+
+            // 호스트가 보내준 다른 guest의 remote stream 화면에 출력
+            call.on("stream", function (remoteStream) {
+              console.log("got remote stream", remoteStream);
+              // 이미 화면에 출력한 remote stream은 skip
+              if (remoteStreams[remoteStream.id]) {
+                return;
+              }
+              // 해당 remote stream 캐싱
+              remoteStreams[remoteStream.id] = remoteStream;
+              // calls[remotePeer] = remoteStream
+              // Show stream in some video/canvas element.
+              console.log("remote peer", remotePeer);
+              addVideo(remoteStream);
+            });
+          });
+        }
+
+        //stream 화면에 출력하는 함수
+        function addVideo(stream) {
+          var videoTag = document.createElement("video");
+          videoTag.srcObject = stream;
+          videoTag.muted = true;
+          videoTag.autoplay = true;
+          // videoTag.addEventListener("loadedmetadata", () => {
+          //     videoTag.play();
+          // });
+          document.getElementById("video_grid").append(videoTag);
+          //document.querySelector('video_grid').srcObject = stream;
+        }
+
+        /**
+         * Get first "GET style" parameter from href.
+         * This enables delivering an initial command upon page load.
+         *
+         * Would have been easier to use location.hash.
+         */
+        function getUrlParam(name) {
+          name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+          var regexS = "[\\?&]" + name + "=([^&#]*)";
+          var regex = new RegExp(regexS);
+          var results = regex.exec(window.location.href);
+          if (results == null) return null;
+          else return results[1];
+        }
+
+        function addMessage(msg) {
+          var now = new Date();
+          var h = now.getHours();
+          var m = addZero(now.getMinutes());
+          var s = addZero(now.getSeconds());
+
+          if (h > 12) h -= 12;
+          else if (h === 0) h = 12;
+
+          function addZero(t) {
+            if (t < 10) t = "0" + t;
+            return t;
+          }
+
+          message.innerHTML =
+            '<br><span class="msg-time">' +
+            h +
+            ":" +
+            m +
+            ":" +
+            s +
+            "</span>  -  " +
+            msg +
+            message.innerHTML;
+        }
+
+        function clearMessages() {
+          message.innerHTML = "";
+          addMessage("Msgs cleared");
+        }
+
+        // Listen for enter in message box
+        sendMessageBox.addEventListener("keypress", function (e) {
+          var event = e || window.event;
+          var char = event.which || event.keyCode;
+          if (char == "13") sendButton.click();
+        });
+        // Send message
+        sendButton.addEventListener("click", function () {
+          if (conn && conn.open) {
+            var msg = sendMessageBox.value;
+            sendMessageBox.value = "";
+            conn.send(msg);
+            console.log("Sent: " + msg);
+            addMessage('<span class="selfMsg">Self: </span> ' + msg);
+          } else {
+            console.log("Connection is closed");
+          }
+        });
+
+        // Clear messages box
+        clearMsgsButton.addEventListener("click", clearMessages);
+        // Start peer connection on click
+        // connectButton.addEventListener("click", join);
+        connectButton.addEventListener("click", function () {
+          if (userId.value == "") {
+            alert(
+              "User Id를 입력하세요. \n입력하지 않으면 참가할 수 없습니다."
+            );
+            return;
+          } //userId 입력 여부 확인
+
+          join();
+        });
+
+        // Since all our callbacks are setup, start the process of obtaining an ID
+        initialize();
+      })();
+    </script>
+  </body>
+</html>

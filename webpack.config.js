@@ -37,10 +37,10 @@ module.exports = {
       },
     ],
   },
-  // plugins: [
-  //   new MiniCssExtractPlugin({
-  //     filename: "flask_react.css",
-  //     chunkFilename: "[id].css",
-  //   }),
-  // ],
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "flask_react.css",
+      chunkFilename: "[id].css",
+    }),
+  ],
 };
