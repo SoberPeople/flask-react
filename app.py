@@ -65,7 +65,7 @@ def detection():
     mat = request.form.get('file')
     # opencv에서 읽기 위해 8비트 애들을 아스키로 변환
     img_data = np.frombuffer(base64.b64decode(
-        mat.replace('data:image/jpeg;base64,', '')), np.uint8)
+        mat.replace('data:image/png;base64,', '')), np.uint8)
     mat = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
 
     if (request.method == 'POST'):
