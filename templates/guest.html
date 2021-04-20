@@ -77,7 +77,7 @@
         var connectButton = document.getElementById("connect-button");
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
-        axios.defaults.baseURL = "https://10.200.172.151:5000/api";
+        axios.defaults.baseURL = "https://127.0.0.1:5000/api";
 
         /**
          * guest의 peer 초기화
@@ -152,12 +152,10 @@
                 let imageCapture = new ImageCapture(track);
                 console.log(imageCapture);
                 let sendstream = new FormData();
-
                 imageCapture
                   .takePhoto()
                   .then(function (blob) {
                     console.log("Took photo:", blob);
-
                     // img.classList.remove('hidden'); //hidden으로 지정한 클래스 제거 -> 에러 x
                     // img.src = URL.createObjectURL(blob);
                     // console.log(URL.createObjectURL(blob));
@@ -165,9 +163,16 @@
                     var reader = new FileReader();
                     reader.readAsDataURL(blob);
                     reader.onloadend = function () {
-                      // sendstream.append("fname", "yo.png");
-                      // sendstream.append("file", blob);
                       sendstream.append("file", reader.result);
+                      console.log(userId.value)
+                      sendstream.append("id" ,userId.value);
+                      // FormData의 value 확인
+                      for (let value of sendstream.values()) {
+                        console.log(value);
+                      }
+                      for (let key of sendstream.keys()) {
+                        console.log(key);
+                      }
                       axios
                         .post("/detection/", sendstream)
 
@@ -177,7 +182,7 @@
                   .catch(function (error) {
                     console.log("takePhoto() error: ", error);
                   });
-              }, 6000);
+              }, 1000);
             },
             function (err) {
               console.log("Failed to get local stream", err);
