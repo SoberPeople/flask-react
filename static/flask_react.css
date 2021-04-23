@@ -1,0 +1,13 @@
+.button_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.button {
+  padding: 3rem;
+  border-radius: 1rem;
+  width: 100px;
+  height: 120px;
+}
+

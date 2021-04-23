@@ -79,7 +79,9 @@
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
         axios.defaults.baseURL = "https://127.0.0.1:5000/api";
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
         const cheating = false;
+
         /**
          * guest의 peer 초기화
          */
@@ -149,9 +151,9 @@
               myStream = stream;
               document.querySelector("video").srcObject = myStream;
               const track = myStream.getVideoTracks()[0];
+              let imageCapture = new ImageCapture(track);
+              
               setInterval(() => {
-                let imageCapture = new ImageCapture(track);
-                console.log(imageCapture);
                 let sendstream = new FormData();
                 imageCapture
                   .takePhoto()
@@ -177,19 +179,22 @@
                         .post("/detection/", sendstream)
                         .then((response) => {
                           if(response.data.hand==0){
-                            console.log(response.data.hand)
+                            console.log("전송성공",response.data.hand)
                           } 
                           else if(response.data.hand > 0){
                             console.log(response.data.hand)
                           }
 
                         });
+
                     };
                   })
                   .catch(function (error) {
                     console.log("takePhoto() error: ", error);
                   });
+
               }, 1000);
+
             },
             function (err) {
               console.log("Failed to get local stream", err);
