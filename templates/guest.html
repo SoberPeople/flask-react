@@ -55,7 +55,8 @@
         </td>
       </tr>
       <tr>
-        <td colspan="2" class="display-box standby" id="video_grid"></td>
+        <td colspan="2" class="display-box standby" id="video_grid">
+        </td>
       </tr>
     </table>
 
@@ -79,6 +80,7 @@
         var userId = document.getElementById("studentId");
         axios.defaults.baseURL = "https://127.0.0.1:5000/api";
         axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        const cheating = false;
 
         /**
          * guest의 peer 초기화
@@ -153,25 +155,45 @@
               
               setInterval(() => {
                 let sendstream = new FormData();
-                // console.log(imageCapture);
-                imageCapture.takePhoto()
+                imageCapture
+                  .takePhoto()
                   .then(function (blob) {
                     console.log("Took photo:", blob);
+                    // img.classList.remove('hidden'); //hidden으로 지정한 클래스 제거 -> 에러 x
+                    // img.src = URL.createObjectURL(blob);
+                    // console.log(URL.createObjectURL(blob));
 
                     var reader = new FileReader();
                     reader.readAsDataURL(blob);
                     reader.onloadend = function () {
-                      // sendstream.append("fname", "yo.png");
-                      // sendstream.append("file", blob);
                       sendstream.append("file", reader.result);
-                      axios.post("/detection/", sendstream)
-                        .then((response) => console.log("전송성공!"));
+                      sendstream.append("id" ,userId.value);
+                      // // FormData의 value 확인
+                      // for (let value of sendstream.values()) {
+                      //   console.log(value);
+                      // }
+                      // for (let key of sendstream.keys()) {
+                      //   console.log(key);
+                      // }
+                      axios
+                        .post("/detection/", sendstream)
+                        .then((response) => {
+                          if(response.data.hand==0){
+                            console.log("전송성공",response.data.hand)
+                          } 
+                          else if(response.data.hand > 0){
+                            console.log(response.data.hand)
+                          }
+
+                        });
+
                     };
                   })
                   .catch(function (error) {
                     console.log("takePhoto() error: ", error);
                   });
-              }, 6000);
+
+              }, 1000);
 
             },
             function (err) {

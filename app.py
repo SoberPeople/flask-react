@@ -27,7 +27,7 @@ def guest():
     return render_template('guest.html')
 
 
-network = 'normal'
+network = 'prn'
 size = 416
 confidence = 0.25
 output_dir = './output_images'
@@ -62,22 +62,12 @@ yolo.confidence = float(confidence)
 
 @app.route('/api/detection/', methods=['GET', 'POST'])
 def detection():
-    mat = request.form.get('file')
-    # opencv에서 읽기 위해 8비트 애들을 아스키로 변환
-    img_data = np.frombuffer(base64.b64decode(
-        mat.replace('data:image/jpeg;base64,', '')), np.uint8)
-    mat = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
-
     if (request.method == 'POST'):
-
-        # print(mat[:30])
-        # print(request.form)
-        # img = cv2.imread(mat)
-        # cv2.imwrite('yo.png',img)
-        # print(mat)
-
-        # cv2.imwrite('mm.png', mat)
-
+        mat = request.form.get('file')
+        userId = request.form.get('id')
+        #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
+        img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8)
+        mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
         width, height, inference_time, results = yolo.inference(mat)
 
         print("%s seconds: %s classes found!" %
@@ -85,7 +75,7 @@ def detection():
 
         # 여기에 사진 저장(값 0이면 캡쳐)
         if len(results) < 1:
-            return json.dumps({"nums_of_hand": 0})
+            return json.dumps({"hand": 0})
 
         for detection in results:
             id, name, confidence, x, y, w, h = detection
@@ -132,10 +122,9 @@ def detection():
 
         # if cv2.waitKey(1) == 27:
         #     break
-
-        output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
+        output_path = os.path.join(output_dir, str(userId) + str(uuid.uuid4()) + ".jpg")
         cv2.imwrite(output_path, frame)
-        return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
+        return json.dumps({"hand": len(results), "output_path": output_path})
 
 
 # @app.route('/', defaults={'path': ''})
