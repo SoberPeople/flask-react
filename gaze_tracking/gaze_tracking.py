@@ -114,12 +114,12 @@ class GazeTracking(object):
     def is_up(self):
         """Returns true if the user is looking to the up"""
         if self.pupils_located:
-            return self.vertical_ratio() >= 0.65
+            return self.vertical_ratio() <= 0.35
 
     def is_down(self):
         """Returns true if the user is looking to the down"""
         if self.pupils_located:
-            return self.vertical_ratio() <= 0.35            
+            return self.vertical_ratio() >= 0.65            
         
 
     def is_blinking(self):

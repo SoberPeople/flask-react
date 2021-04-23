@@ -80,8 +80,8 @@ def detection():
         print("%s seconds: %s classes found!" %
               (round(inference_time, 2), len(results)))
 
-        # 손 0개 탐지
-        if len(results) < 1:
+        # 손 0/1개 탐지
+        if len(results) < 2:
             cheat = True
 
         ### gaze_Tracking ###
@@ -121,7 +121,7 @@ def detection():
 
                 print("%s with %s confidence" % (name, round(confidence, 2)))
         
-            cv2.putText(frame, eye_text, (90, 60),
+            cv2.putText(frame, userId + eye_text, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)  # 눈 text쓰기
 
             left_pupil = gaze.pupil_left_coords()
