@@ -55,7 +55,8 @@
         </td>
       </tr>
       <tr>
-        <td colspan="2" class="display-box standby" id="video_grid"></td>
+        <td colspan="2" class="display-box standby" id="video_grid">
+        </td>
       </tr>
     </table>
 
@@ -78,7 +79,7 @@
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
         axios.defaults.baseURL = "https://127.0.0.1:5000/api";
-
+        const cheating = false;
         /**
          * guest의 peer 초기화
          */
@@ -164,19 +165,25 @@
                     reader.readAsDataURL(blob);
                     reader.onloadend = function () {
                       sendstream.append("file", reader.result);
-                      console.log(userId.value)
                       sendstream.append("id" ,userId.value);
-                      // FormData의 value 확인
-                      for (let value of sendstream.values()) {
-                        console.log(value);
-                      }
-                      for (let key of sendstream.keys()) {
-                        console.log(key);
-                      }
+                      // // FormData의 value 확인
+                      // for (let value of sendstream.values()) {
+                      //   console.log(value);
+                      // }
+                      // for (let key of sendstream.keys()) {
+                      //   console.log(key);
+                      // }
                       axios
                         .post("/detection/", sendstream)
+                        .then((response) => {
+                          if(response.data.hand==0){
+                            console.log(response.data.hand)
+                          } 
+                          else if(response.data.hand > 0){
+                            console.log(response.data.hand)
+                          }
 
-                        .then((response) => console.log("전송성공"));
+                        });
                     };
                   })
                   .catch(function (error) {

@@ -61,7 +61,6 @@ def detection():
     if (request.method == 'POST'):
         mat = request.form.get('file')
         userId = request.form.get('id')
-        print(userId)
         #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
         img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8)
         mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
@@ -72,7 +71,7 @@ def detection():
 
         ## 여기에 사진 저장(값 0이면 캡쳐)
         if len(results) < 1:
-            return json.dumps({"nums_of_hand": 0})
+            return json.dumps({"hand": 0})
 
         for detection in results:
             id, name, confidence, x, y, w, h = detection
@@ -117,9 +116,9 @@ def detection():
 
         # if cv2.waitKey(1) == 27:
         #     break
-        output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
+        output_path = os.path.join(output_dir, str(userId) + str(uuid.uuid4()) + ".jpg")
         cv2.imwrite(output_path, frame)
-        return json.dumps({"nums_of_hand": len(results), "output_path": output_path})
+        return json.dumps({"hand": len(results), "output_path": output_path})
 
 
 # @app.route('/', defaults={'path': ''})
