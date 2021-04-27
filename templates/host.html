@@ -158,14 +158,16 @@
                     call.on('stream', function (remoteStream) {
                         console.log("remoteStream", remoteStream.id);
                         // 이미 출력된 원격 스트림 skip
-                        if(!remoteUserStream[remoteStream.id]){
-                        remoteUserStream[remoteStream.id]= remoteUserCheck[call.peer]
-                        console.log('스트림 id')
-                        conn.send(remoteUserStream)}
-
                         if (remoteStreams[remoteStream.id]) {
                             return;
                         }
+                        if(!remoteUserStream[remoteStream.id]){
+                            remoteUserStream[remoteStream.id]= remoteUserCheck[remotePeer]
+                            console.log('스트림 id')
+                            conns[remotePeer].send(remoteUserStream)
+                        }
+                        
+
                         // 각 게스트에게 새로운 게스트만 전달하도록 캐싱
                         remoteStreams[remoteStream.id] = remoteStream
                         remotePeers[remoteStream.id] = remotePeer

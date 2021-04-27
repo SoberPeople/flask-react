@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width" />
     <title>Peer-to-Peer Cue System --- Sender</title>
     <!-- <link rel="stylesheet" href="style.css" /> -->
+    <script src="./tensorflow.js"></script>
+    <script src="./webgazer.js"></script>
   </head>
   <body>
     <h1>Peer-to-Peer Cue System --- Sender</h1>
+    
     <table class="control">
       <tr>
         <td class="title">Status:</td>
@@ -260,7 +263,7 @@
               console.log("remote peer", remotePeer);
               if(remoteUserCheck[remoteStream.id]==userId.value){
                 addVideo(remoteStream);}
-            });
+              });
           });
         }
 
