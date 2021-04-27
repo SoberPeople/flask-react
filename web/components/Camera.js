@@ -1,20 +1,19 @@
 import React, { Component, useRef } from "react";
 import Webcam from "react-webcam";
 import "./Guest.css";
-import Initialize from "./Initialize";
+// import Initialize from "./Initialize";
 
 function Camera() {
   const camera = React.useRef();
   return (
     <div>
-      <h2>This is Camera component</h2>
       <Webcam
         autoPlay
         playsInline
         muted={true}
         ref={camera}
-        width="870"
-        height="534"
+        width="560"
+        height="450"
       />
       {/* <Initialize /> */}
     </div>
