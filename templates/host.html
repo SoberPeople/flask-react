@@ -55,6 +55,7 @@
             var conns = {}; //접속하는 peer의 data connection
             var remoteStreams = {};
             var remotePeers = {};
+            var remoteUserStream = {}; 
             var remoteUserCheck = {};  //guest의 눈캠, 손캠을 하나의 guestId로 묶어 저장하기 위한 배열
             var remoteStreamsFlags = {};
             var recvId = document.getElementById("receiver-id");
@@ -152,11 +153,16 @@
 
                     // 게스트에게 호스트 스트림 전달
                     call.answer(hostStream); // Answer the call with an A/V stream.
-
+                    
                     // 게스트의 스트림을 받기 위해
                     call.on('stream', function (remoteStream) {
                         console.log("remoteStream", remoteStream.id);
                         // 이미 출력된 원격 스트림 skip
+                        if(!remoteUserStream[remoteStream.id]){
+                        remoteUserStream[remoteStream.id]= remoteUserCheck[call.peer]
+                        console.log('스트림 id')
+                        conn.send(remoteUserStream)}
+
                         if (remoteStreams[remoteStream.id]) {
                             return;
                         }

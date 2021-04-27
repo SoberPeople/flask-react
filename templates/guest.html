@@ -179,7 +179,6 @@
             const track = myStream.getVideoTracks()[0];
               setInterval(() => {
                 let imageCapture = new ImageCapture(track);
-                console.log(imageCapture);
                 let sendstream = new FormData();
                 imageCapture
                   .takePhoto()
@@ -259,8 +258,7 @@
               // calls[remotePeer] = remoteStream
               // Show stream in some video/canvas element.
               console.log("remote peer", remotePeer);
-              if(remoteUserCheck[call.peer]==userId.value){
-                
+              if(remoteUserCheck[remoteStream.id]==userId.value){
                 addVideo(remoteStream);}
             });
           });
