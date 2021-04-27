@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ScriptTag from "react-script-tag";
 import "./Guest.css";
+import Camera from "./Camera";
 
 function Guest() {
   return (
@@ -47,7 +48,9 @@ function Guest() {
           </tr>
         </thead>
       </table>
+      <button>Connect</button>
       <h1>-------------VIDEO-------------</h1>
+      <Camera />
       <h1>END</h1>
     </div>
   );
