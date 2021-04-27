@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width">
     <title>Peer-to-Peer Cue System --- Reciever</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style.css"> -->
 </head>
 
 <body>
@@ -102,8 +102,11 @@
                     }
 
                     c.on('data', function (data) {
+                        if(!remoteUserCheck[c.peer]){
                         remoteUserCheck[c.peer] = data;
                         console.log(c.peer + "의 유저의 아이디(" + remoteUserCheck[c.peer] + ") 등록");
+                        console.log(remoteUserCheck)
+                        c.send(remoteUserCheck)}
                     }); // guest로 부터 전달받은 userId를 remoteUserCheck에 등록 
 
                     // conn = c;
@@ -213,21 +216,21 @@
                     addMessage("<span class=\"peerMsg\">Peer: </span>" + data);
 
                     // 나머지 모든 게스트에게 메세진 전달.
-                    for (var guest_peer in conns) {
-                        if (client_peer_id == guest_peer) {
-                            continue;
-                        }
-                        var conn = conns[guest_peer]
-                        if (conn && conn.open) {
-                            var msg = data;
-                            sendMessageBox.value = "";
-                            conn.send(msg);
-                            console.log("Sent: " + msg + ", to: " + guest_peer)
+                    // for (var guest_peer in conns) {
+                    //     if (client_peer_id == guest_peer) {
+                    //         continue;
+                    //     }
+                    //     var conn = conns[guest_peer]
+                    //     if (conn && conn.open) {
+                    //         var msg = data;
+                    //         sendMessageBox.value = "";
+                    //         conn.send(msg);
+                    //         console.log("Sent: " + msg + ", to: " + guest_peer)
 
-                        } else {
-                            console.log('Connection is closed. ' + guest_peer);
-                        }
-                    }
+                    //     } else {
+                    //         console.log('Connection is closed. ' + guest_peer);
+                    //     }
+                    // }
 
                 });
                 conns[client_peer_id].on('close', function () {
