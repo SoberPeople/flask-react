@@ -123,7 +123,7 @@ def detection():
         # if cv2.waitKey(1) == 27:
         #     break
         output_path = os.path.join(output_dir, str(userId) + str(uuid.uuid4()) + ".jpg")
-        cv2.imwrite(output_path, frame)
+        # cv2.imwrite(output_path, frame)
         return json.dumps({"hand": len(results), "output_path": output_path})
 
 
