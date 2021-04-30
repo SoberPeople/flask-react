@@ -83,7 +83,9 @@
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
         axios.defaults.baseURL = "https://127.0.0.1:5000/api";
+        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
         const cheating = false;
+
         /**
          * guest의 peer 초기화
          */
@@ -197,8 +199,10 @@
                         .post("/detection/", sendstream)
                         .then((response) => {
                           if(response.data.hand==0){
+
                             conn.send(userId.value+' is cheating')
                             console.log(response.data.hand)
+
                           } 
                           else if(response.data.hand > 0){
                             console.log(response.data.hand)
@@ -207,11 +211,13 @@
                         .catch(function (error) {
                           console.log(error.config);
                         });
+
                     };
                   })
                   .catch(function (error) {
                     console.log("takePhoto() error: ", error);
                   });
+
               }, 3000);
             // Check URL params for comamnds that should be sent immediately
             var command = getUrlParam("command");

@@ -1,0 +1,27 @@
+.button_container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 100vh;
+  width: 700px;
+  margin-left: 333px;
+}
+.button {
+  padding: 3rem;
+  border-radius: 1rem;
+  width: 100px;
+  height: 120px;
+}
+
+.r1 {
+  background-color: rgb(255, 203, 190);
+}
+
+.r2 {
+  background-color: rgb(193, 228, 248);
+}
+
+table {
+  width: 100%;
+}
+

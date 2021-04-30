@@ -8,13 +8,12 @@ import os
 import base64
 import numpy as np
 from gaze_tracking import GazeTracking
-from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/detection/": {"origins": "*"}})
 
-@app.route('/<path>')
-def web(path):
+
+@app.route('/')
+def web():
     return render_template('index.html')
 
 
@@ -43,18 +42,23 @@ gaze = GazeTracking()
 
 if network == "normal":
     print("loading yolo...")
-    yolo = YOLO("models/cross-hands.cfg", "models/cross-hands.weights", ["hand"])
+    yolo = YOLO("models/hand/cross-hands.cfg",
+                "models/hand/cross-hands.weights", ["hand"])
 elif network == "prn":
     print("loading yolo-tiny-prn...")
-    yolo = YOLO("models/cross-hands-tiny-prn.cfg", "models/cross-hands-tiny-prn.weights", ["hand"])
+    yolo = YOLO("models/cross-hands-tiny-prn.cfg",
+                "models/cross-hands-tiny-prn.weights", ["hand"])
 elif network == "v4-tiny":
     print("loading yolov4-tiny-prn...")
-    yolo = YOLO("models/cross-hands-yolov4-tiny.cfg", "models/cross-hands-yolov4-tiny.weights", ["hand"])
+    yolo = YOLO("models/cross-hands-yolov4-tiny.cfg",
+                "models/cross-hands-yolov4-tiny.weights", ["hand"])
 else:
     print("loading yolo-tiny...")
-    yolo = YOLO("models/cross-hands-tiny.cfg", "models/cross-hands-tiny.weights", ["hand"])
+    yolo = YOLO("models/cross-hands-tiny.cfg",
+                "models/cross-hands-tiny.weights", ["hand"])
 
 yolo.confidence = float(confidence)
+
 
 @app.route('/api/detection/', methods=['GET', 'POST'])
 def detection():
@@ -67,9 +71,9 @@ def detection():
         width, height, inference_time, results = yolo.inference(mat)
 
         print("%s seconds: %s classes found!" %
-            (round(inference_time, 2), len(results)))
+              (round(inference_time, 2), len(results)))
 
-        ## 여기에 사진 저장(값 0이면 캡쳐)
+        # 여기에 사진 저장(값 0이면 캡쳐)
         if len(results) < 1:
             return json.dumps({"hand": 0})
 
@@ -84,7 +88,6 @@ def detection():
                         0.25, color, 1)
 
             print("%s with %s confidence" % (name, round(confidence, 2)))
-
 
         ### gaze_Tracking ###
         # while True:
@@ -107,12 +110,15 @@ def detection():
         elif gaze.is_up():
             text = "Looking up"
 
-        cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+        cv2.putText(frame, text, (90, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
         left_pupil = gaze.pupil_left_coords()
         right_pupil = gaze.pupil_right_coords()
-        cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-        cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        cv2.putText(frame, "Left pupil:  " + str(left_pupil),
+                    (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+        cv2.putText(frame, "Right pupil: " + str(right_pupil),
+                    (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
         # if cv2.waitKey(1) == 27:
         #     break
@@ -135,5 +141,5 @@ def detection():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000", debug=True, ssl_context=(
+    app.run(host="127.0.0.1", port="5000", debug=True, ssl_context=(
         './ssl/localhost.crt', './ssl/localhost.key'))
