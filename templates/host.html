@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width">
     <title>Peer-to-Peer Cue System --- Reciever</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style.css"> -->
 </head>
 
 <body>
@@ -55,6 +55,7 @@
             var conns = {}; //접속하는 peer의 data connection
             var remoteStreams = {};
             var remotePeers = {};
+            var remoteUserStream = {}; 
             var remoteUserCheck = {};  //guest의 눈캠, 손캠을 하나의 guestId로 묶어 저장하기 위한 배열
             var remoteStreamsFlags = {};
             var recvId = document.getElementById("receiver-id");
@@ -102,8 +103,11 @@
                     }
 
                     c.on('data', function (data) {
+                        if(!remoteUserCheck[c.peer]){
                         remoteUserCheck[c.peer] = data;
                         console.log(c.peer + "의 유저의 아이디(" + remoteUserCheck[c.peer] + ") 등록");
+                        console.log(remoteUserCheck)
+                        c.send(remoteUserCheck)}
                     }); // guest로 부터 전달받은 userId를 remoteUserCheck에 등록 
 
                     // conn = c;
@@ -149,7 +153,7 @@
 
                     // 게스트에게 호스트 스트림 전달
                     call.answer(hostStream); // Answer the call with an A/V stream.
-
+                    
                     // 게스트의 스트림을 받기 위해
                     call.on('stream', function (remoteStream) {
                         console.log("remoteStream", remoteStream.id);
@@ -157,6 +161,13 @@
                         if (remoteStreams[remoteStream.id]) {
                             return;
                         }
+                        if(!remoteUserStream[remoteStream.id]){
+                            remoteUserStream[remoteStream.id]= remoteUserCheck[remotePeer]
+                            console.log('스트림 id')
+                            conns[remotePeer].send(remoteUserStream)
+                        }
+                        
+
                         // 각 게스트에게 새로운 게스트만 전달하도록 캐싱
                         remoteStreams[remoteStream.id] = remoteStream
                         remotePeers[remoteStream.id] = remotePeer
@@ -213,21 +224,21 @@
                     addMessage("<span class=\"peerMsg\">Peer: </span>" + data);
 
                     // 나머지 모든 게스트에게 메세진 전달.
-                    for (var guest_peer in conns) {
-                        if (client_peer_id == guest_peer) {
-                            continue;
-                        }
-                        var conn = conns[guest_peer]
-                        if (conn && conn.open) {
-                            var msg = data;
-                            sendMessageBox.value = "";
-                            conn.send(msg);
-                            console.log("Sent: " + msg + ", to: " + guest_peer)
+                    // for (var guest_peer in conns) {
+                    //     if (client_peer_id == guest_peer) {
+                    //         continue;
+                    //     }
+                    //     var conn = conns[guest_peer]
+                    //     if (conn && conn.open) {
+                    //         var msg = data;
+                    //         sendMessageBox.value = "";
+                    //         conn.send(msg);
+                    //         console.log("Sent: " + msg + ", to: " + guest_peer)
 
-                        } else {
-                            console.log('Connection is closed. ' + guest_peer);
-                        }
-                    }
+                    //     } else {
+                    //         console.log('Connection is closed. ' + guest_peer);
+                    //     }
+                    // }
 
                 });
                 conns[client_peer_id].on('close', function () {
