@@ -133,7 +133,7 @@ def detection():
             else :
                 cheat = True
 
-            cv2.putText(frame, text, (90, 60),
+            cv2.putText(frame, eye_text, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
             left_pupil = gaze.pupil_left_coords()
