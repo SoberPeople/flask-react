@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width" />
     <title>Peer-to-Peer Cue System --- Sender</title>
     <!-- <link rel="stylesheet" href="style.css" /> -->
-    <script src="./tensorflow.js"></script>
-    <script src="./webgazer.js"></script>
+    <!-- <script src="./tensorflow.js"></script> -->
+    <!-- <script src="./webgazer.js"></script> -->
   </head>
   <body>
     <h1>Peer-to-Peer Cue System --- Sender</h1>
@@ -198,14 +198,14 @@
                       axios
                         .post("/detection/", sendstream)
                         .then((response) => {
-                          if(response.data.hand==0){
+                          if(response.data.cheat == 1){
 
                             conn.send(userId.value+' is cheating')
-                            console.log(response.data.hand)
+                            console.log(response.data.cheat)
 
                           } 
-                          else if(response.data.hand > 0){
-                            console.log(response.data.hand)
+                          else if(response.data.cheat != 1){
+                            console.log(response.data.cheat)
                           }
                         })
                         .catch(function (error) {
