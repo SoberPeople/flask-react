@@ -27,7 +27,7 @@ def guest():
     return render_template('guest.html')
 
 
-network = 'prn'
+network = 'normal'
 size = 416
 confidence = 0.25
 output_dir = './output_images'
