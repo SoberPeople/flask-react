@@ -112,10 +112,11 @@ def detection():
         
         
         ### gaze_Tracking ###
-        eye_text = ""
+        
 
-        if(device == "COM") : # 노트북 화면일 경우 
+        elif(device == "COM") : # 노트북 화면일 경우 
             # frame = mat
+            eye_text = ""
 
             # We send this frame to GazeTracking to analyze it
             gaze.refresh(frame)
@@ -152,6 +153,10 @@ def detection():
             #     break
             
             cv2.imwrite(output_path, frame)
+            return json.dumps({"cheat": 1, "output_path": output_path})
+
+        else:
+            print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
             return json.dumps({"cheat": 1, "output_path": output_path})
 
         # if cheat: #손 또는 눈이 안 보일 때
