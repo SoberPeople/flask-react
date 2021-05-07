@@ -87,22 +87,27 @@ def detection():
                 (round(inference_time, 2), len(results)))
 
             # 여기에 사진 저장(값 0이면 캡쳐)
-            if len(results) < 1:
-                return json.dumps({"hand": 0})
+            if len(results) < 2:
+                cheat = 1
+                # return json.dumps({"cheat": 1})
 
-            for detection in results:
-                id, name, confidence, x, y, w, h = detection
+            if cheat:
+                for detection in results:
+                    id, name, confidence, x, y, w, h = detection
 
-                # draw a bounding box rectangle and label on the image
-                color = (255, 0, 255)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
-                text = "%s (%s)" % (name, round(confidence, 2))
-                cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                            0.25, color, 1)
+                    # draw a bounding box rectangle and label on the image
+                    color = (255, 0, 255)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
+                    text = "%s (%s)" % (name, round(confidence, 2))
+                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.25, color, 1)
 
-                print("%s with %s confidence" % (name, round(confidence, 2)))
+                    print("%s with %s confidence" % (name, round(confidence, 2)))
+                    
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
+
+            return json.dumps({"cheat": 0, "output_path": output_path})    
             
         
         
