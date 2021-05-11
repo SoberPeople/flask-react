@@ -9,6 +9,7 @@ import base64
 import numpy as np
 from gaze_tracking import GazeTracking
 from django.shortcuts import render
+import datetime
 
 app = Flask(__name__)
 
@@ -73,11 +74,13 @@ def detection():
         userId = request.form.get('id')
         print(userId)
 
+        now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+
         cheat = 0 # 손 또는 눈 detect 여부
         device = userId[8:] # 핸드폰인지 노트북인지 판별
         print(device)
 
-        output_path = os.path.join(output_dir, str(userId) + str(uuid.uuid4()) + ".jpg")
+        
 
         ### 손 detect ###
         if(device == "PHONE"):    # 핸드폰 화면일 경우
@@ -99,11 +102,15 @@ def detection():
                     color = (255, 0, 255)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
                     text = "%s (%s)" % (name, round(confidence, 2))
-                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.putText(frame, userId + text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                                 0.25, color, 1)
 
                     print("%s with %s confidence" % (name, round(confidence, 2)))
                     
+                cv2.putText(frame, userId, (90, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+
+                output_path = os.path.join(output_dir, str(userId) + ".hand." + str(now) + str(uuid.uuid4()) + ".jpg")
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
 
@@ -139,7 +146,7 @@ def detection():
             else :
                 cheat = True
 
-            cv2.putText(frame, eye_text, (90, 60),
+            cv2.putText(frame, userId + eye_text, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
             left_pupil = gaze.pupil_left_coords()
@@ -152,6 +159,7 @@ def detection():
             # if cv2.waitKey(1) == 27:
             #     break
             
+            output_path = os.path.join(output_dir, str(userId) + ".eye." + str(now) + str(uuid.uuid4()) + ".jpg")
             cv2.imwrite(output_path, frame)
             return json.dumps({"cheat": 1, "output_path": output_path})
 
