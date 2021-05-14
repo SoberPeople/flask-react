@@ -8,11 +8,10 @@ import os
 import base64
 import numpy as np
 from gaze_tracking import GazeTracking
-from django.shortcuts import render
 import datetime
+from openpyxl import Workbook
 
 app = Flask(__name__)
-
 
 @app.route('/')
 def web():    
@@ -80,10 +79,10 @@ def detection():
         device = userId[8:] # 핸드폰인지 노트북인지 판별
         print(device)
 
-        
+        output_path = os.path.join(output_dir, str(userId) + ".hand." + str(now) + str(uuid.uuid4()) + ".jpg")
 
         ### 손 detect ###
-        if(device == "PHONE"):    # 핸드폰 화면일 경우
+        if((device == "PHONE") | (device == "phone")):    # 핸드폰 화면일 경우
             width, height, inference_time, results = yolo.inference(frame)
 
             print("%s seconds: %s classes found!" %
@@ -110,7 +109,7 @@ def detection():
                 cv2.putText(frame, userId, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
-                output_path = os.path.join(output_dir, str(userId) + ".hand." + str(now) + str(uuid.uuid4()) + ".jpg")
+                
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
 
@@ -121,7 +120,7 @@ def detection():
         ### gaze_Tracking ###
         
 
-        elif(device == "COM") : # 노트북 화면일 경우 
+        elif((device == "COM") | (device == "com")) : # 노트북 화면일 경우 
             # frame = mat
             eye_text = ""
 
@@ -159,12 +158,14 @@ def detection():
             # if cv2.waitKey(1) == 27:
             #     break
             
-            output_path = os.path.join(output_dir, str(userId) + ".eye." + str(now) + str(uuid.uuid4()) + ".jpg")
             cv2.imwrite(output_path, frame)
             return json.dumps({"cheat": 1, "output_path": output_path})
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
+            cv2.putText(frame, userId, (90, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+            cv2.imwrite(output_path, frame)
             return json.dumps({"cheat": 1, "output_path": output_path})
 
         # if cheat: #손 또는 눈이 안 보일 때
