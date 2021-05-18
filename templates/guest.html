@@ -310,6 +310,7 @@
           videoTag.srcObject = stream;
           videoTag.muted = true;
           videoTag.autoplay = true;
+          videoTag.setAttribute("width","500px"); // video size - width 추가
           // videoTag.addEventListener("loadedmetadata", () => {
           //     videoTag.play();
           // });
