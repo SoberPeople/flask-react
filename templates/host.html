@@ -7,17 +7,44 @@
     <title>Peer-to-Peer Cue System --- Reciever</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}"></noscript>
-    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='sidebar/sidebar.css') }}">
+  
 </head>
 
 <body class="is-preload">
     <!-- Wrapper -->
-	<div id="wrapper">  
+	<div id="wrapper"> 
+        <input type="checkbox" id="side_btn" class="side_input" />
+        <label for="side_btn" class="side_toggle_btn"></label>
+        
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <div id="msg_content">
+                <p>This</p>
+                <p>Is</p>
+                <p>Sidebar</p>
+                <p>For message</p>
+            </div>
+            
+        </div>
+        
+        <button class="openbtn" onclick="openNav()">▶️</button>
+        <script type="text/javascript">
+            function openNav() {
+                document.getElementById("mySidebar").style.width = "300px";
+                // document.getElementById("wrapper").style.marginLeft = "300px";
+            }
+
+            function closeNav() {
+                document.getElementById("mySidebar").style.width = "0";
+                // document.getElementById("wrapper").style.marginLeft = "0";
+            }
+        </script>
 
         <!-- Header -->
         <header id="header">
-            <div class="content">
 
+            <div class="content">
                 <h1>Host</h1>
                 <div span="2" class="display-box standby" id="video_grid"></div>
 
