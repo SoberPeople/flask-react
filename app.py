@@ -112,7 +112,6 @@ def detection():
                     
                 cv2.putText(frame, stid, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
                 
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
@@ -137,26 +136,26 @@ def detection():
                 cheat = True
                 # eye_text = "Looking right"
                 eye_text = "right"
-                print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                 + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
             elif gaze.is_left():
                 cheat = True
                 # eye_text = "Looking left"   
                 eye_text = "left"
-                print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                 + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
             elif gaze.is_up():
                 cheat = True
                 # eye_text = "Looking up"
                 eye_text = "up"
-                print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                 + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
             elif gaze.is_center():
                 cheat = False
                 # eye_text = "Looking center"
                 eye_text = "center"
-                print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                 + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
             else :
                 cheat = True
 
