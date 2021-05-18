@@ -156,14 +156,7 @@ def detection():
             cv2.putText(frame, stid + " - " + eye_text, (90, 60),
                     cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
-            if cheat:
-                # left_pupil = gaze.pupil_left_coords()
-                # right_pupil = gaze.pupil_right_coords()
-                # cv2.putText(frame, "Left pupil:  " + str(left_pupil),
-                #         (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-                # cv2.putText(frame, "Right pupil: " + str(right_pupil),
-                #         (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-            
+            if cheat:            
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
             
