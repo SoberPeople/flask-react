@@ -105,18 +105,19 @@ def detection():
                     color = (255, 0, 255)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
                     text = "%s (%s)" % (name, round(confidence, 2))
-                    cv2.putText(frame, stid + text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                                 0.25, color, 1)
 
                     print("%s with %s confidence" % (name, round(confidence, 2)))
                     
-                cv2.putText(frame, stid, (90, 60),
-                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+                cv2.putText(frame, stid, (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+                    #147, 58, 31
                 
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
 
-            return json.dumps({"cheat": 0, "output_path": output_path})    
+            return json.dumps({"cheat": 0, "output_path": output_path})
             
         
         
@@ -129,38 +130,43 @@ def detection():
             # We send this frame to GazeTracking to analyze it
             gaze.refresh(frame)
 
-            frame = gaze.annotated_frame() # 동공 십자가 표시
-            
+            frame = gaze.annotated_frame() # 동공 십자가 표시            
 
             if gaze.is_right():
                 cheat = True
                 # eye_text = "Looking right"
                 eye_text = "right"
-                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_left():
                 cheat = True
                 # eye_text = "Looking left"   
                 eye_text = "left"
-                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_up():
                 cheat = True
                 # eye_text = "Looking up"
                 eye_text = "up"
-                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_center():
                 cheat = False
                 # eye_text = "Looking center"
                 eye_text = "center"
-                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),3))
-                #  + "  vertical: " + str(round(gaze.vertical_ratio(),3)))
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            elif gaze.is_down():
+                cheat = False
+                # eye_text = "Looking down"
+                eye_text = "down"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             else :
                 cheat = True
 
-            cv2.putText(frame, stid + "  " + eye_text, (90, 60),
-                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+            cv2.putText(frame, stid+ "  " + eye_text, (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
 
             if cheat:
                 cv2.imwrite(output_path, frame)
@@ -171,8 +177,10 @@ def detection():
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
-            cv2.putText(frame, stid, (90, 60),
-                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+            
+            cv2.putText(frame, stid + "  ID Error", (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+
             cv2.imwrite(output_path, frame)
             return json.dumps({"cheat": 1, "output_path": output_path})
 
