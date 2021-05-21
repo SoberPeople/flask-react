@@ -35,29 +35,25 @@ confidence = 0.25
 output_dir = './output_images'
 os.makedirs(output_dir, exist_ok=True)
 
-print("loading yolo-tiny-prn...")
-yolo = YOLO("models/hand/cross-hands-tiny-prn.cfg",
-            "models/hand/cross-hands-tiny-prn.weights", ["hand"])
-yolo.size = int(size)
 
 gaze = GazeTracking()
 
-# if network == "normal":
-#     print("loading yolo...")
-#     yolo = YOLO("models/cross-hands.cfg",
-#                 "models/cross-hands.weights", ["hand"])
-# elif network == "prn":
-#     print("loading yolo-tiny-prn...")
-#     yolo = YOLO("models/cross-hands-tiny-prn.cfg",
-#                 "models/cross-hands-tiny-prn.weights", ["hand"])
-# elif network == "v4-tiny":
-#     print("loading yolov4-tiny-prn...")
-#     yolo = YOLO("models/cross-hands-yolov4-tiny.cfg",
-#                 "models/cross-hands-yolov4-tiny.weights", ["hand"])
-# else:
-#     print("loading yolo-tiny...")
-#     yolo = YOLO("models/cross-hands-tiny.cfg",
-#                 "models/cross-hands-tiny.weights", ["hand"])
+if network == "normal":
+    print("loading yolo...")
+    yolo = YOLO("models/cross-hands.cfg",
+                "models/cross-hands.weights", ["hand"])
+elif network == "prn":
+    print("loading yolo-tiny-prn...")
+    yolo = YOLO("models/cross-hands-tiny-prn.cfg",
+                "models/cross-hands-tiny-prn.weights", ["hand"])
+elif network == "v4-tiny":
+    print("loading yolov4-tiny-prn...")
+    yolo = YOLO("models/cross-hands-yolov4-tiny.cfg",
+                "models/cross-hands-yolov4-tiny.weights", ["hand"])
+else:
+    print("loading yolo-tiny...")
+    yolo = YOLO("models/cross-hands-tiny.cfg",
+                "models/cross-hands-tiny.weights", ["hand"])
 
 yolo.confidence = float(confidence)
 
@@ -77,15 +73,15 @@ def detection():
     else:
         img_data = np.frombuffer(base64.b64decode(
             frame.replace('data:image/png;base64,', '')), np.uint8)
+    frame = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
 
     if (request.method == 'POST'):
         userId = request.form.get('id')
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
-        cheat = 0  # 손 또는 눈 detect 여부
+        cheat = 0  # 부정행위이면 1, 아니면 0
         stid = userId[:7]
-
-        device = userId[8:]  # 핸드폰인지 노트북인지 판별
+        device = userId[8:]
         print(now+": "+userId+"의 "+device+"이미지를 받았습니다.")
 
         output_path = os.path.join(output_dir, str(
@@ -93,7 +89,7 @@ def detection():
         #+ ".hand."
 
         ### 손 detect ###
-        if((device == "PHONE") | (device == "phone")):    # 핸드폰 화면일 경우
+        if((device == "PHONE") | (device == "phone")):
             width, height, inference_time, results = yolo.inference(frame)
 
             print("%s seconds: %s classes found!" %
@@ -123,42 +119,36 @@ def detection():
                 #147, 58, 31
 
                 cv2.imwrite(output_path, frame)
-                return json.dumps({"cheat": 1, "output_path": output_path})
+                return json.dumps({"cheat": 1})
 
-            return json.dumps({"cheat": 0, "output_path": output_path})
+            return json.dumps({"cheat": 0})
 
         ### gaze_Tracking ###
-
         elif((device == "COM") | (device == "com")):  # 노트북 화면일 경우
-            # frame = mat
             eye_text = ""
 
-            # We send this frame to GazeTracking to analyze it
+            # gaze tracking에 분석위해 frame 보내기
             gaze.refresh(frame)
 
             frame = gaze.annotated_frame()  # 동공 십자가 표시
 
             if gaze.is_right():
                 cheat = True
-                # eye_text = "Looking right"
                 eye_text = "right"
                 # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
                 #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_left():
                 cheat = True
-                # eye_text = "Looking left"
                 eye_text = "left"
                 # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
                 #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_up():
                 cheat = True
-                # eye_text = "Looking up"
                 eye_text = "up"
                 # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
                 #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_center():
                 cheat = False
-                # eye_text = "Looking center"
                 eye_text = "center"
             else:
                 cheat = True
@@ -175,10 +165,10 @@ def detection():
                 #         (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
                 cv2.imwrite(output_path, frame)
-                return json.dumps({"cheat": 1, "output_path": output_path})
+                return json.dumps({"cheat": 1})
 
             else:
-                return json.dumps({"cheat": 0, "output_path": output_path})
+                return json.dumps({"cheat": 0})
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
@@ -187,7 +177,7 @@ def detection():
                         cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
 
             cv2.imwrite(output_path, frame)
-            return json.dumps({"cheat": 1, "output_path": output_path})
+            return json.dumps({"cheat": 1})
 
         #     return json.dumps({"cheat": 1, "output_path": output_path})
 
