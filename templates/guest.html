@@ -251,14 +251,11 @@
                         .post("/detection/", sendstream)
                         .then((response) => {
                           console.log('전송 성공');
-                          if(response.data.cheat == 1){
+                           if(response.data.cheat == 1){
 
-                            conn.send(userId.value+' is cheating')
-                            console.log(response.data.cheat)
+                            conn.send(userId.value+'가'+response.data.dir+" 쪽을 보고 있습니다")
+                            console.log("cheating type:",response.data.cheat)
 
-                          } 
-                          else if(response.data.cheat != 1){
-                            console.log(response.data.cheat)
                           }
                         })
                         .catch(function (error) {
