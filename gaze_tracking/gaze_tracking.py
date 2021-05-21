@@ -98,35 +98,50 @@ class GazeTracking(object):
 
     def is_right(self):
         """Returns true if the user is looking to the right"""
+        # if self.pupils_located:
+        #     return self.horizontal_ratio() <= 0.35
         if self.pupils_located:
-            return self.horizontal_ratio() <= 0.35 and self.vertical<0.6
+            if self.horizontal_ratio() <= 0.35:
+                return True
 
     def is_left(self):
         """Returns true if the user is looking to the left"""
+        # if self.pupils_located:
+        #     return self.horizontal_ratio() >= 0.65 # and self.vertical_ratio >= 0.35
         if self.pupils_located:
-            return self.horizontal_ratio() >= 0.65
+            if self.horizontal_ratio() >= 0.65:
+                return True
 
     def is_center(self):
         """Returns true if the user is looking to the center"""
+        # if self.pupils_located:
+        #     return self.is_right() is not True and self.is_left() is not True and self.is_up() is not True and self.is_down() is not True
         if self.pupils_located:
-            return self.is_right() is not True and self.is_left() is not True and self.is_up() is not True and self.is_down() is not True
-            
+            if self.is_right() is not True and self.is_left() is not True and self.is_up() is not True and self.is_down() is not True:
+                return True 
+
     def is_up(self):
         """Returns true if the user is looking to the up"""
+        # if self.pupils_located:
+        #     return self.vertical_ratio() <= 0.65
         if self.pupils_located:
-            return self.vertical_ratio() >= 0.65
+            if self.vertical_ratio() <= 0.35 and self.is_right() is not True and self.is_left() is not True:
+                return True
 
     def is_down(self):
         """Returns true if the user is looking to the down"""
+        # if self.pupils_located:
+        #     return self.vertical_ratio() >= 0.65
         if self.pupils_located:
-            return self.vertical_ratio() <= 0.35            
+            if self.vertical_ratio() >= 0.65 and self.is_right() is not True and self.is_left() is not True:
+                return True            
         
 
-    def is_blinking(self):
-        """Returns true if the user closes his eyes"""
-        if self.pupils_located:
-            blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
-            return blinking_ratio > 3.8
+    # def is_blinking(self):
+    #     """Returns true if the user closes his eyes"""
+    #     if self.pupils_located:
+    #         blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
+    #         return blinking_ratio > 3.8
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""

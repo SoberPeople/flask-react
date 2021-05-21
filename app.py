@@ -8,12 +8,13 @@ import os
 import base64
 import numpy as np
 from gaze_tracking import GazeTracking
+import datetime
+# from sqlalchemy import create_engine
 
 app = Flask(__name__)
 
-
 @app.route('/')
-def web():
+def web():    
     return render_template('index.html')
 
 
@@ -42,8 +43,8 @@ gaze = GazeTracking()
 
 if network == "normal":
     print("loading yolo...")
-    yolo = YOLO("models/hand/cross-hands.cfg",
-                "models/hand/cross-hands.weights", ["hand"])
+    yolo = YOLO("models/cross-hands.cfg",
+                "models/cross-hands.weights", ["hand"])
 elif network == "prn":
     print("loading yolo-tiny-prn...")
     yolo = YOLO("models/cross-hands-tiny-prn.cfg",
@@ -59,72 +60,129 @@ else:
 
 yolo.confidence = float(confidence)
 
+### 추가
+# engine = create_engine('mssql+pymssql://username:passwd@host/database', echo=True)
 
 @app.route('/api/detection/', methods=['GET', 'POST'])
 def detection():
+    frame = request.form.get('file')
+    # opencv에서 읽기 위해 8비트 애들을 아스키로 변환
+    img_data = np.frombuffer(base64.b64decode(
+        frame.replace('data:image/png;base64,', '')), np.uint8)
+    frame = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
+
     if (request.method == 'POST'):
-        mat = request.form.get('file')
         userId = request.form.get('id')
-        #opencv에서 읽기 위해 8비트 애들을 아스키로 변환
-        img_data = np.frombuffer(base64.b64decode(mat.replace('data:image/png;base64,','')), np.uint8)
-        mat = cv2.imdecode(img_data,cv2.IMREAD_ANYCOLOR)
-        width, height, inference_time, results = yolo.inference(mat)
+        print(userId)
 
-        print("%s seconds: %s classes found!" %
-              (round(inference_time, 2), len(results)))
+        now = datetime.datetime.now().strftime("_%y-%m-%d_%H-%M-%S")
 
-        # 여기에 사진 저장(값 0이면 캡쳐)
-        if len(results) < 1:
-            return json.dumps({"hand": 0})
+        cheat = 0 # 손 또는 눈 detect 여부
+        stid = userId[:7]
+        device = userId[8:] # 핸드폰인지 노트북인지 판별
+        # print(device)
 
-        for detection in results:
-            id, name, confidence, x, y, w, h = detection
+        output_path = os.path.join(output_dir, str(userId) + str(now) + str(uuid.uuid4()) + ".jpg")
+        #+ ".hand."
 
-            # draw a bounding box rectangle and label on the image
-            color = (255, 0, 255)
-            cv2.rectangle(mat, (x, y), (x + w, y + h), color, 1)
-            text = "%s (%s)" % (name, round(confidence, 2))
-            cv2.putText(mat, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.25, color, 1)
+        ### 손 detect ###
+        if((device == "PHONE") | (device == "phone")):    # 핸드폰 화면일 경우
+            width, height, inference_time, results = yolo.inference(frame)
 
-            print("%s with %s confidence" % (name, round(confidence, 2)))
+            print("%s seconds: %s classes found!" %
+                (round(inference_time, 2), len(results)))
 
+            # 여기에 사진 저장(값 0이면 캡쳐)
+            if len(results) < 2:
+                cheat = 1
+                # return json.dumps({"cheat": 1})
+
+            if cheat:
+                for detection in results:
+                    id, name, confidence, x, y, w, h = detection
+
+                    # draw a bounding box rectangle and label on the image
+                    color = (255, 0, 255)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
+                    text = "%s (%s)" % (name, round(confidence, 2))
+                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.25, color, 1)
+
+                    print("%s with %s confidence" % (name, round(confidence, 2)))
+                    
+                cv2.putText(frame, stid, (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+                    #147, 58, 31
+                
+                cv2.imwrite(output_path, frame)
+                return json.dumps({"cheat": 1, "output_path": output_path})
+
+            return json.dumps({"cheat": 0, "output_path": output_path})
+            
+        
+        
         ### gaze_Tracking ###
-        # while True:
-        # We get a new frame from the webcam
-        # _,
-        frame = mat
 
-        # We send this frame to GazeTracking to analyze it
-        gaze.refresh(frame)
+        elif((device == "COM") | (device == "com")) : # 노트북 화면일 경우 
+            # frame = mat
+            eye_text = ""
 
-        frame = gaze.annotated_frame()
-        text = ""
+            # We send this frame to GazeTracking to analyze it
+            gaze.refresh(frame)
 
-        if gaze.is_right():
-            text = "Looking right"
-        elif gaze.is_left():
-            text = "Looking left"
-        elif gaze.is_center():
-            text = "Looking center"
-        elif gaze.is_up():
-            text = "Looking up"
+            frame = gaze.annotated_frame() # 동공 십자가 표시            
 
-        cv2.putText(frame, text, (90, 60),
-                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+            if gaze.is_right():
+                cheat = True
+                # eye_text = "Looking right"
+                eye_text = "right"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            elif gaze.is_left():
+                cheat = True
+                # eye_text = "Looking left"   
+                eye_text = "left"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            elif gaze.is_up():
+                cheat = True
+                # eye_text = "Looking up"
+                eye_text = "up"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            elif gaze.is_center():
+                cheat = False
+                # eye_text = "Looking center"
+                eye_text = "center"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            elif gaze.is_down():
+                cheat = False
+                # eye_text = "Looking down"
+                eye_text = "down"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
+            else :
+                cheat = True
 
-        left_pupil = gaze.pupil_left_coords()
-        right_pupil = gaze.pupil_right_coords()
-        cv2.putText(frame, "Left pupil:  " + str(left_pupil),
-                    (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-        cv2.putText(frame, "Right pupil: " + str(right_pupil),
-                    (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            cv2.putText(frame, stid+ "  " + eye_text, (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
 
-        # if cv2.waitKey(1) == 27:
-        #     break
-        output_path = os.path.join(output_dir, str(userId) + str(uuid.uuid4()) + ".jpg")
-        # cv2.imwrite(output_path, frame)
-        return json.dumps({"hand": len(results), "output_path": output_path})
+            if cheat:
+                cv2.imwrite(output_path, frame)
+                return json.dumps({"cheat": 1, "output_path": output_path})
+            
+            else:
+                return json.dumps({"cheat": 0, "output_path": output_path})
+
+        else:
+            print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
+            
+            cv2.putText(frame, stid + "  ID Error", (20, 60),
+                    cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+
+            cv2.imwrite(output_path, frame)
+            return json.dumps({"cheat": 1, "output_path": output_path})
 
 
 # @app.route('/', defaults={'path': ''})
