@@ -79,6 +79,7 @@ def detection():
 
         cheat = 0  # 손 또는 눈 detect 여부
         stid = userId[:7]
+
         device = userId[8:]  # 핸드폰인지 노트북인지 판별
         print(now+": "+userId+"의 "+device+"이미지를 받았습니다.")
 
@@ -106,14 +107,15 @@ def detection():
                     color = (255, 0, 255)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
                     text = "%s (%s)" % (name, round(confidence, 2))
-                    cv2.putText(frame, stid + text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                                 0.25, color, 1)
 
                     print("%s with %s confidence" %
                           (name, round(confidence, 2)))
 
-                cv2.putText(frame, stid, (90, 60),
-                            cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+                cv2.putText(frame, stid, (20, 60),
+                            cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+                #147, 58, 31
 
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "output_path": output_path})
@@ -135,14 +137,20 @@ def detection():
                 cheat = True
                 # eye_text = "Looking right"
                 eye_text = "right"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_left():
                 cheat = True
                 # eye_text = "Looking left"
                 eye_text = "left"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_up():
                 cheat = True
                 # eye_text = "Looking up"
                 eye_text = "up"
+                # print(eye_text + "  horizontal: " + str(round(gaze.horizontal_ratio(),2))
+                #  + "  vertical: " + str(round(gaze.vertical_ratio(),2)))
             elif gaze.is_center():
                 cheat = False
                 # eye_text = "Looking center"
@@ -169,39 +177,12 @@ def detection():
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
-            cv2.putText(frame, stid, (90, 60),
-                        cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+
+            cv2.putText(frame, stid + "  ID Error", (20, 60),
+                        cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
+
             cv2.imwrite(output_path, frame)
             return json.dumps({"cheat": 1, "output_path": output_path})
-
-        # if cheat: #손 또는 눈이 안 보일 때
-        #     for detection in results: #손 detect가 있으면 그림그리기
-        #         id, name, confidence, x, y, w, h = detection
-
-        #         # draw a bounding box rectangle and label on the image
-        #         color = (255, 0, 255)
-        #         cv2.rectangle(frame, (x, y), (x + w, y + h), color, 1)
-        #         text = "%s (%s)" % (name, round(confidence, 2))
-        #         cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
-        #                     0.25, color, 1)
-
-        #         print("%s with %s confidence" % (name, round(confidence, 2)))
-
-        #     cv2.putText(frame, userId +" " + eye_text, (90, 60),
-        #             cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)  # 눈 text쓰기
-
-        #     left_pupil = gaze.pupil_left_coords()
-        #     right_pupil = gaze.pupil_right_coords()
-        #     cv2.putText(frame, "Left pupil:  " + str(left_pupil),
-        #                 (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-        #     cv2.putText(frame, "Right pupil: " + str(right_pupil),
-        #                 (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-
-        #     # if cv2.waitKey(1) == 27:
-        #     #     break
-
-        #     output_path = os.path.join(output_dir, str(uuid.uuid4()) + ".jpg")
-        #     # cv2.imwrite(output_path, frame)
 
         #     return json.dumps({"cheat": 1, "output_path": output_path})
 
