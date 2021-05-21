@@ -69,9 +69,14 @@ yolo.confidence = float(confidence)
 def detection():
     frame = request.form.get('file')
 
-    img_data = np.frombuffer(base64.b64decode(
-        frame.replace('data:image/png;base64,', '')), np.uint8)
-    frame = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
+    # 이미지 받아오는 형식에 따라 cv에서 읽을 수 있는 데이터로 변환
+    img_data = ""
+    if "image/jpeg" in frame:
+        img_data = np.frombuffer(base64.b64decode(
+            frame.replace('data:image/jpeg;base64,', '')), np.uint8)
+    else:
+        img_data = np.frombuffer(base64.b64decode(
+            frame.replace('data:image/png;base64,', '')), np.uint8)
 
     if (request.method == 'POST'):
         userId = request.form.get('id')
