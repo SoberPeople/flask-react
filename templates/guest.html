@@ -132,7 +132,7 @@
         var connectButton = document.getElementById("connect-button");
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
-        axios.defaults.baseURL = "https://127.0.0.1:5000/api";
+        axios.defaults.baseURL = "https://10.200.23.195:5000/api";
         axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
         const cheating = false;
 
@@ -231,6 +231,7 @@
             console.log("Sent userId: " + userId.value);
             status.innerHTML = "Connected to: " + conn.peer;
             console.log("Connected to: " + conn.peer);
+
             const track = myStream.getVideoTracks()[0];
               setInterval(() => {
                 let imageCapture = new ImageCapture(track);
@@ -248,6 +249,7 @@
                       axios
                         .post("/detection/", sendstream)
                         .then((response) => {
+                          console.log('전송 성공');
                           if(response.data.cheat == 1){
 
                             conn.send(userId.value+' is cheating')

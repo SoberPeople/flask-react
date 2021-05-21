@@ -68,21 +68,19 @@ yolo.confidence = float(confidence)
 @app.route('/api/detection/', methods=['GET', 'POST'])
 def detection():
     frame = request.form.get('file')
-    # opencv에서 읽기 위해 8비트 애들을 아스키로 변환
+
     img_data = np.frombuffer(base64.b64decode(
         frame.replace('data:image/png;base64,', '')), np.uint8)
     frame = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
 
     if (request.method == 'POST'):
         userId = request.form.get('id')
-        print(userId)
-
         now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
         cheat = 0  # 손 또는 눈 detect 여부
         stid = userId[:7]
         device = userId[8:]  # 핸드폰인지 노트북인지 판별
-        print(device)
+        print(now+": "+userId+"의 "+device+"이미지를 받았습니다.")
 
         output_path = os.path.join(output_dir, str(
             userId) + str(now) + str(uuid.uuid4()) + ".jpg")
@@ -210,19 +208,6 @@ def detection():
         # return json.dumps({"cheat": 1})
 
 
-# @app.route('/', defaults={'path': ''})
-# @app.route('/<path>')
-# def web(path):
-#     if(path == 'first' or path == 'second'):
-#         return render_template('index.html')
-#     elif(path == 'host'):
-#         return render_template('host.html')
-#     elif(path == 'guest'):
-#         return render_template('guest.html')
-#     else:
-#         return "Hello Page"
-
-
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port="5000", debug=True, ssl_context=(
+    app.run(host="0.0.0.0", port="5000", debug=True, ssl_context=(
         './ssl/localhost.crt', './ssl/localhost.key'))
