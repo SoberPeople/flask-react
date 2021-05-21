@@ -320,7 +320,9 @@
               // calls[remotePeer] = remoteStream
               // Show stream in some video/canvas element.
               console.log("remote peer", remotePeer);
-              if(remoteUserCheck[remoteStream.id]==userId.value){
+		var remoteUserId = toString(remoteUserCheck[remoteStream.id]);
+              var localUserId = toString(userId.value);
+              if(remoteUserId.substring(0,6)==localUserId.substring(0,6)){
                 addVideo(remoteStream);}
               });
           });
