@@ -162,10 +162,10 @@ def detection():
                 #         (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
                 cv2.imwrite(output_path, frame)
-                return json.dumps({"cheat": 1, "dir": eye_text})
+                return json.dumps({"cheat": 1, "isHand":0, "dir": eye_text})
 
             else:
-                return json.dumps({"cheat": 0, "dir": eye_text})
+                return json.dumps({"cheat": 0, "isHand":0, "dir": eye_text})
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
