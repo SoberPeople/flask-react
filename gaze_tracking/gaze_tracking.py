@@ -105,7 +105,7 @@ class GazeTracking(object):
         # if self.pupils_located:
         #     return self.horizontal_ratio() <= 0.35
         if self.pupils_located:
-            if self.horizontal_ratio() <= 0.35:
+            if self.horizontal_ratio() <= 0.47:
                 return True
 
     def is_left(self):
@@ -113,7 +113,7 @@ class GazeTracking(object):
         # if self.pupils_located:
         #     return self.horizontal_ratio() >= 0.65 # and self.vertical_ratio >= 0.35
         if self.pupils_located:
-            if self.horizontal_ratio() >= 0.65:
+            if self.horizontal_ratio() >= 0.7:
                 return True
 
     def is_center(self):
@@ -129,7 +129,7 @@ class GazeTracking(object):
         # if self.pupils_located:
         #     return self.vertical_ratio() <= 0.65
         if self.pupils_located:
-            if self.vertical_ratio() <= 0.35 and self.is_right() is not True and self.is_left() is not True:
+            if self.vertical_ratio() <= 0.5 and self.is_right() is not True and self.is_left() is not True:
                 return True
 
     def is_down(self):

@@ -3,7 +3,7 @@ import ssl
 import cv2
 from yolo import YOLO
 import json
-import uuid
+# import uuid
 import os
 import base64
 import numpy as np
@@ -68,11 +68,9 @@ def detection():
     # 이미지 받아오는 형식에 따라 cv에서 읽을 수 있는 데이터로 변환
     img_data = ""
     if "image/jpeg" in frame:
-        img_data = np.frombuffer(base64.b64decode(
-            frame.replace('data:image/jpeg;base64,', '')), np.uint8)
+        img_data = np.frombuffer(base64.b64decode(frame.replace('data:image/jpeg;base64,', '')), np.uint8)
     else:
-        img_data = np.frombuffer(base64.b64decode(
-            frame.replace('data:image/png;base64,', '')), np.uint8)
+        img_data = np.frombuffer(base64.b64decode(frame.replace('data:image/png;base64,', '')), np.uint8)
     frame = cv2.imdecode(img_data, cv2.IMREAD_ANYCOLOR)
 
     if (request.method == 'POST'):
@@ -85,7 +83,7 @@ def detection():
         print(now+": "+userId+"의 "+device+"이미지를 받았습니다.")
 
         output_path = os.path.join(output_dir, str(
-            userId) + str(now) + str(uuid.uuid4()) + ".jpg")
+            userId) + str(now) + ".jpg")
         #+ ".hand."
 
         ### 손 detect ###
@@ -124,12 +122,11 @@ def detection():
             return json.dumps({"cheat": 0, "isHand":1, "numHands":len(results)})
 
         ### gaze_Tracking ###
+        
         elif((device == "COM") | (device == "com")):  # 노트북 화면일 경우
             eye_text = ""
-
-            # gaze tracking에 분석위해 frame 보내기
-            gaze.refresh(frame)
-
+           
+            gaze.refresh(frame)     # gaze tracking에 분석위해 frame 보내기
             frame = gaze.annotated_frame()  # 동공 십자가 표시
 
             if gaze.is_right():
@@ -151,7 +148,7 @@ def detection():
                 cheat = False
                 eye_text = "center"
             else:
-                cheat = True
+                cheat = False
 
             cv2.putText(frame, stid + " - " + eye_text, (90, 60),
                         cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
@@ -165,10 +162,10 @@ def detection():
                 #         (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
                 cv2.imwrite(output_path, frame)
-                return json.dumps({"cheat": 1})
+                return json.dumps({"cheat": 1, "dir": eye_text})
 
             else:
-                return json.dumps({"cheat": 0})
+                return json.dumps({"cheat": 0, "dir": eye_text})
 
         else:
             print("id를 '학번_PHONE/COM' 형식으로 입력하지 않았습니다!")
