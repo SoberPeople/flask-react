@@ -119,9 +119,9 @@ def detection():
                 #147, 58, 31
 
                 cv2.imwrite(output_path, frame)
-                return json.dumps({"cheat": 1})
+                return json.dumps({"cheat": 1, "isHand":1, "numHands":len(results)})
 
-            return json.dumps({"cheat": 0})
+            return json.dumps({"cheat": 0, "isHand":1, "numHands":len(results)})
 
         ### gaze_Tracking ###
         elif((device == "COM") | (device == "com")):  # 노트북 화면일 경우
