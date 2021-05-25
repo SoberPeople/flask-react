@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}"></noscript>
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar/sidebar.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   
 </head>
 
@@ -19,7 +20,7 @@
 	<div id="wrapper"> 
         <!-- <input type="checkbox" id="side_btn" class="side_input" />
         <label for="side_btn" class="side_toggle_btn"></label> -->
-        <button class="openbtn" onclick="openNav()">▶️</button>
+        <button style="position: fixed; left: 0px;"class="btn" onclick="openNav()"><i class="fa fa-bars"></i> Menu</button>
 
         <div id="mySidebar" class="sidebar">
             <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
