@@ -1,0 +1,137 @@
+.side_toggle_btn::before {
+  content: "▶️";
+  display: inline-block;
+  width: 50px;
+  font-size: 24px;
+  text-align: center;
+  border-right: 1px solid #000;
+}
+.side_input:checked + .side_toggle_btn::before {
+  content: "◀️";
+}
+.side_input:checked ~ .side_list {
+  left: 0;
+}
+.side_list {
+  position: absolute;
+  left: -200px;
+  top: 50px;
+  bottom: 0;
+  border-right: 1px solid#000;
+}
+.blind {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* The sidebar menu */
+.sidebar {
+  height: 100%; /* 100% Full-height */
+  width: 0; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0;
+  left: 0;
+  background-color: #111; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+}
+
+/* The sidebar links */
+.sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidebar a:hover {
+  color: black;
+}
+
+.sidebar .msg_content {
+  padding: 0px 18px;
+}
+
+/* Position and style the close button (top right corner) */
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* The button used to open the sidebar */
+.openbtn {
+  font-size: 20px;
+  cursor: pointer;
+  background-color: #111;
+  color: white;
+  padding: 0px 13px;
+  border: none;
+}
+
+.openbtn:hover {
+  background-color: #444;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left 0.5s; /* If you want a transition effect */
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidebar {
+    padding-top: 15px;
+  }
+  .sidebar a {
+    font-size: 18px;
+  }
+}
+
+/* msg sidebar*/
+.msg_content {
+  height: 96%;
+  display: block;
+}
+.msg_section {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: scroll;
+}
+.message {
+  position: absolute;
+  text-align: left;
+  display: table-cell;
+}
+.msg-send_layout {
+  top: 500px;
+}
+#btn_layout {
+  display: flex;
+  align-content: space-between;
+}
+
+/* scroll-bar */
+.msg_section::-webkit-scrollbar {
+  width: 10px;
+  background-color: black;
+}
+
+.msg_section::-webkit-scrollbar-thumb {
+  background-color: grey;
+}

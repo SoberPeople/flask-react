@@ -6,32 +6,68 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" /> -->
     <!-- <title>Peer-to-Peer Cue System --- Sender</title> -->
     <title>SoberPPL Guest</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}"></noscript>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='assets/css/main.css') }}"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='assets/css/noscript.css') }}"
+    /></noscript>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='sidebar/sidebar.css') }}"
+    />
     <!-- <link rel="stylesheet" href="style.css" /> -->
     <!-- <script src="./tensorflow.js"></script> -->
     <!-- <script src="./webgazer.js"></script> -->
   </head>
-  <body class="is-preload">  
-
+  <body class="is-preload">
     <!-- Wrapper -->
-		<div id="wrapper">  
+    <div id="wrapper">
+      <button class="openbtn" onclick="openNav()">▶️</button>
+
+      <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
+          >&times;</a
+        >
+        <div class="msg_content">
+          <section class="msg_section" style="height: 35rem; border: solid">
+            <div class="message" id="message"></div>
+          </section>
+          <div style="padding: 0.25rem"></div>
+
+          <div class="msg-send_layout">
+            <input
+              type="text"
+              id="sendMessageBox"
+              placeholder="Enter a message..."
+              autofocus="true"
+            />
+            <div id="btn_layout" style="margin-top: 5px">
+              <button type="button" id="sendButton" style="margin-right: 18px">
+                Send
+              </button>
+              <button type="button" id="clearMsgsButton">Clear Msgs</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Header -->
-			<header id="header">
-        <div class="content">          
-      
-            <!-- <h1>Peer-to-Peer Cue System --- Sender</h1> -->
-            <h1>Guest</h1>
-            <div colspan="2" class="display-box standby" id="video_grid">
-            </div>  
-            
+      <header id="header">
+        <div class="content">
+          <!-- <h1>Peer-to-Peer Cue System --- Sender</h1> -->
+          <h1>Guest</h1>
+          <div colspan="2" class="display-box standby" id="video_grid"></div>
+
           <table class="control">
             <tr>
               <!-- <td class="title">Status:</td> -->
               <td class="title">Room ID</td>
               <td class="title">Student ID</td>
-              <td class="title">Messages</td>
+              <!-- <td class="title">Messages</td> -->
             </tr>
             <tr>
               <td>
@@ -50,51 +86,60 @@
                   placeholder="Enter a student id..."
                   autofocus="true"
                 />
-                <div style="padding: 0.25rem;"></div>
-                <button id="connect-button" >
+                <div style="padding: 0.25rem"></div>
+                <button id="connect-button">
                   <!-- style="margin-right: 3rem" -->
                   Connect
                 </button>
               </td>
-              <td>
-                <input
-                  type="text"
-                  id="sendMessageBox"
-                  placeholder="Enter a message..."
-                  autofocus="true"
-                />
-                <div style="padding: 0.25rem;"></div>
-                <button type="button" id="sendButton">Send</button>
-                <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
-              </td>
             </tr>
             <tr>
               <td>
-                <div id="status" class="status"></div>
-              </td>
-              <td>
-                <div class="message" id="message"></div>
+                <div id="status" class="status">Not connected</div>
               </td>
               <td></td>
             </tr>
-            <tr>              
-            </tr>
+            <tr></tr>
           </table>
-
-        </div>        
+        </div>
       </header>
-
     </div>
 
     <!-- BG -->
-		<div id = "bg"></div>   
+    <div id="bg"></div>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='assets/js/browser.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='assets/js/breakpoints.min.js') }}"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='assets/js/util.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-    
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='assets/js/jquery.min.js') }}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='assets/js/browser.min.js') }}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='assets/js/breakpoints.min.js') }}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='assets/js/util.js') }}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='assets/js/main.js') }}"
+    ></script>
+
+    <script type="text/javascript">
+      function openNav() {
+        document.getElementById("mySidebar").style.width = "300px";
+        // document.getElementById("wrapper").style.marginLeft = "300px";
+      }
+      function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        // document.getElementById("wrapper").style.marginLeft = "0";
+      }
+    </script>
+
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="text/javascript">
@@ -104,7 +149,7 @@
         var conn = null;
         var myStream = null;
         var remoteStreams = {};
-        var remoteUserCheck = {}; 
+        var remoteUserCheck = {};
         var recvIdInput = document.getElementById("receiver-id");
         var status = document.getElementById("status");
         var message = document.getElementById("message");
@@ -114,8 +159,9 @@
         var connectButton = document.getElementById("connect-button");
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
-        axios.defaults.baseURL = "https://127.0.0.1:5000/api";
-        axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        axios.defaults.baseURL = "https://10.200.87.113:5000/api";
+        axios.defaults.headers.post["Content-Type"] =
+          "application/x-www-form-urlencoded";
         const cheating = false;
 
         /**
@@ -164,6 +210,7 @@
           //peer close됐을 때 처리
           peer.on("close", function () {
             conn = null;
+            video.remove();
             status.innerHTML = "Connection destroyed. Please refresh";
             console.log("Connection destroyed");
           });
@@ -180,12 +227,11 @@
             navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia;
           getUserMedia(
-            { video: true, audio: true },
+            { video: {width:500, height:500, facingMode:'user'}, audio: true },
             function (stream) {
               addVideo(stream);
               myStream = stream;
               document.querySelector("video").srcObject = myStream;
-              
             },
             function (err) {
               console.log("Failed to get local stream", err);
@@ -206,51 +252,57 @@
           });
           // 호스트에게 userId 전송
 
-
           // 호스트 peer 접속 후 로그
           conn.on("open", function () {
             conn.send(userId.value);
             console.log("Sent userId: " + userId.value);
             status.innerHTML = "Connected to: " + conn.peer;
             console.log("Connected to: " + conn.peer);
+
             const track = myStream.getVideoTracks()[0];
-              setInterval(() => {
-                let imageCapture = new ImageCapture(track);
-                let sendstream = new FormData();
-                imageCapture
-                  .takePhoto()
-                  .then(function (blob) {
-                    console.log("Took photo:", blob);
+            setInterval(() => {
+              let imageCapture = new ImageCapture(track);
+              let sendstream = new FormData();
+              imageCapture
+                .takePhoto()
+                .then(function (blob) {
+                  console.log("Took photo:", blob);
 
-                    var reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = function () {
-                      sendstream.append("file", reader.result);
-                      sendstream.append("id" ,userId.value);
-                      axios
-                        .post("/detection/", sendstream)
-                        .then((response) => {
-                          if(response.data.cheat == 1){
-
-                            conn.send(userId.value+' is cheating')
-                            console.log(response.data.cheat)
-
-                          } 
-                          else if(response.data.cheat != 1){
-                            console.log(response.data.cheat)
+                  var reader = new FileReader();
+                  reader.readAsDataURL(blob);
+                  reader.onloadend = function () {
+                    sendstream.append("file", reader.result);
+                    sendstream.append("id", userId.value);
+                    axios
+                      .post("/detection/", sendstream)
+                      .then((response) => {
+                        console.log("전송 성공");
+                        if (response.data.cheat == 1) {
+                          //to check hand
+                          if (response.data.isHand == 1) {
+                            conn.send(
+                              userId.value +
+                                " has only " +
+                                response.data.numHands +
+                                " hands!"
+                            );
+                          } else {
+                            conn.send(userId.value + " is cheating");
+                            console.log(response.data.cheat);
                           }
-                        })
-                        .catch(function (error) {
-                          console.log(error.config);
-                        });
-
-                    };
-                  })
-                  .catch(function (error) {
-                    console.log("takePhoto() error: ", error);
-                  });
-
-              }, 3000);
+                        } else if (response.data.cheat != 1) {
+                          console.log(response.data.cheat);
+                        }
+                      })
+                      .catch(function (error) {
+                        console.log(error.config);
+                      });
+                  };
+                })
+                .catch(function (error) {
+                  console.log("takePhoto() error: ", error);
+                });
+            }, 3000);
             // Check URL params for comamnds that should be sent immediately
             var command = getUrlParam("command");
             if (command) conn.send(command);
@@ -259,7 +311,7 @@
           // 호스트를 통해서 현재 guest로 채팅 들어오면 화면에 출력
           conn.on("data", function (data) {
             remoteUserCheck = data;
-            console.log(remoteUserCheck)
+            console.log(remoteUserCheck);
           });
           conn.on("close", function () {
             status.innerHTML = "Connection closed";
@@ -274,6 +326,7 @@
               return;
             }
             console.log("call peer", remoteStream.id);
+            console.log("여기서 시작");
             addVideo(remoteStream);
             // 출력한 remote stream 캐싱
             remoteStreams[remoteStream.id] = remoteStream;
@@ -286,7 +339,7 @@
 
             // 호스트로 응답
             call.answer(myStream);
-            
+
             // 호스트가 보내준 다른 guest의 remote stream 화면에 출력
             call.on("stream", function (remoteStream) {
               console.log("got remote stream", remoteStream);
@@ -299,9 +352,15 @@
               // calls[remotePeer] = remoteStream
               // Show stream in some video/canvas element.
               console.log("remote peer", remotePeer);
-              if(remoteUserCheck[remoteStream.id]==userId.value){
-                addVideo(remoteStream);}
-              });
+              var remoteUserId = toString(remoteUserCheck[remoteStream.id]);
+              var localUserId = toString(userId.value);
+              if (remoteUserId.substring(0, 6) == localUserId.substring(0, 6)) {
+                addVideo(remoteStream);
+              }
+            });
+            call.on("close", () => {
+              video.remove(); //어떤 user가 연결 끊으면 video 삭제
+            });
           });
         }
 
@@ -311,7 +370,9 @@
           videoTag.srcObject = stream;
           videoTag.muted = true;
           videoTag.autoplay = true;
-          videoTag.setAttribute("width","500px"); // video size - width 추가
+          // videoTag.setAttribute("width", "500"); // video size - width 추가
+          // videoTag.setAttribute("height", "500");
+          
           // videoTag.addEventListener("loadedmetadata", () => {
           //     videoTag.play();
           // });
@@ -348,16 +409,17 @@
             return t;
           }
 
-          message.innerHTML =
-            '<br><span class="msg-time">' +
+          const new_message = document.createElement("div");
+          new_message.innerHTML =
+            '<span class="msg-time">' +
             h +
             ":" +
             m +
             ":" +
             s +
             "</span>  -  " +
-            msg +
-            message.innerHTML;
+            msg;
+          message.appendChild(new_message);
         }
 
         function clearMessages() {
@@ -403,6 +465,5 @@
         initialize();
       })();
     </script>
-
   </body>
 </html>
