@@ -26,7 +26,7 @@
   <body class="is-preload">
     <!-- Wrapper -->
     <div id="wrapper">
-      <button class="openbtn" onclick="openNav()">▶️</button>
+      <!-- <button class="openbtn" onclick="openNav()">▶️</button> -->
 
       <div id="mySidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"
@@ -156,6 +156,7 @@
         var sendButton = document.getElementById("sendButton");
         var clearMsgsButton = document.getElementById("clearMsgsButton");
         var connectButton = document.getElementById("connect-button");
+        var exitButton = document.getElementById("exit-button");
         var cueString = '<span class="cueMsg">Cue: </span>';
         var userId = document.getElementById("studentId");
         axios.defaults.baseURL = "https://10.200.11.65:5000/api";
@@ -225,7 +226,7 @@
             navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia;
           getUserMedia(
-            { video: true, audio: true },
+            { video: {width:500, height:500, facingMode:'user'}, audio: true },
             function (stream) {
               addVideo(stream);
               myStream = stream;
@@ -264,8 +265,6 @@
               imageCapture
                 .takePhoto()
                 .then(function (blob) {
-                  console.log("Took photo:", blob);
-
                   var reader = new FileReader();
                   reader.readAsDataURL(blob);
                   reader.onloadend = function () {
@@ -274,9 +273,8 @@
                     axios
                       .post("/detection/", sendstream)
                       .then((response) => {
-                        console.log("전송 성공");
                         if (response.data.cheat == 1) {
-                          //to check hand
+                          //if hand
                           if (response.data.isHand == 1) {
                             conn.send(
                               userId.value +
@@ -284,12 +282,16 @@
                                 response.data.numHands +
                                 " hands!"
                             );
-                          } else {
+                          } 
+                          //if eye
+                          else {
                             conn.send(userId.value + " 가 "+ response.data.dir +" 방향을 보고 있습니다!!");
-                            console.log(response.data.cheat);
+                            console.log("user is cheating");
                           }
-                        } else if (response.data.cheat != 1) {
-                          console.log(response.data.cheat);
+                        }else if (response.data.cheat == 0) {
+                          console.log('USER IS NOT CHEATING');
+                        }else if (response.data.cheat == 2){
+                          console.log('이미지가 제대로 처리되지 않았음');
                         }
                       })
                       .catch(function (error) {
@@ -300,7 +302,7 @@
                 .catch(function (error) {
                   console.log("takePhoto() error: ", error);
                 });
-            }, 3000);
+            },1000);
             // Check URL params for comamnds that should be sent immediately
             var command = getUrlParam("command");
             if (command) conn.send(command);
@@ -308,8 +310,9 @@
 
           // 호스트를 통해서 현재 guest로 채팅 들어오면 화면에 출력
           conn.on("data", function (data) {
-            remoteUserCheck = data;
+            remoteUserCheck = data.valueOf();
             console.log(remoteUserCheck);
+            remoteUserCheck.toString();
           });
           conn.on("close", function () {
             status.innerHTML = "Connection closed";
@@ -347,13 +350,15 @@
               }
               // 해당 remote stream 캐싱
               remoteStreams[remoteStream.id] = remoteStream;
-              // calls[remotePeer] = remoteStream
-              // Show stream in some video/canvas element.
+
               console.log("remote peer", remotePeer);
-              var remoteUserId = toString(remoteUserCheck[remoteStream.id]);
-              var localUserId = toString(userId.value);
-              if (remoteUserId.substring(0, 6) == localUserId.substring(0, 6)) {
-                addVideo(remoteStream);
+              var remoteUserId = new String;
+              remoteUserId = remoteUserCheck[remoteStream.id];
+              var localUserId = new String 
+              localUserId = userId.value;
+              console.log(remoteUserId+': '+ typeof(remoteUserCheck[remoteStream.id]));
+              if (remoteUserId.substring(0, 7) == localUserId.substring(0, 7)) {
+                 addVideo(remoteStream);
               }
             });
           });
@@ -453,6 +458,7 @@
 
           join();
         });
+
 
         // Since all our callbacks are setup, start the process of obtaining an ID
         initialize();

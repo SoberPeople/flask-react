@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/main.css') }}">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='assets/css/noscript.css') }}"></noscript>
     <link rel="stylesheet" href="{{ url_for('static', filename='sidebar/sidebar.css') }}">
-  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body class="is-preload">
@@ -19,7 +19,7 @@
 	<div id="wrapper"> 
         <!-- <input type="checkbox" id="side_btn" class="side_input" />
         <label for="side_btn" class="side_toggle_btn"></label> -->
-        <button class="openbtn" onclick="openNav()">▶️</button>
+        <button style="position: fixed; left: 0px; top:0px;"class="btn" onclick="openNav()"><i class="fa fa-bars"></i> Menu</button>
 
         <div id="mySidebar" class="sidebar">
             <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -162,8 +162,7 @@
                         if(!remoteUserCheck[c.peer]){
                         remoteUserCheck[c.peer] = data;
                         console.log(c.peer + "의 유저의 아이디(" + remoteUserCheck[c.peer] + ") 등록");
-                        console.log(remoteUserCheck)
-                        c.send(remoteUserCheck)}
+                        console.log(remoteUserCheck)}
                     }); // guest로 부터 전달받은 userId를 remoteUserCheck에 등록 
 
                     // conn = c;
@@ -181,10 +180,11 @@
                     peer._lastServerId = lastPeerId;
                     peer.reconnect();
                 });
-                peer.on('close', function () {
+                peer.on('close', function (stream) {
                     conn = null;
                     status.innerHTML = "Connection destroyed. Please refresh";
                     console.log('Connection destroyed');
+                    
                 });
                 peer.on('error', function (err) {
                     console.log(err);
@@ -193,9 +193,9 @@
 
                 // host화면 출력
                 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-                getUserMedia({ video: true, audio: true }, function (stream) {
+                getUserMedia({ video: {width:500, height:500, facingMode:'user'}, audio: true }, function (stream) {
                     //show local video
-                    addVideo(stream);
+                    addHostVideo(stream);
 
                     hostStream = stream;
                 }, function (err) {
@@ -217,11 +217,19 @@
                         if (remoteStreams[remoteStream.id]) {
                             return;
                         }
-                        if(!remoteUserStream[remoteStream.id]){
-                            remoteUserStream[remoteStream.id]= remoteUserCheck[remotePeer]
-                            console.log('스트림 id')
-                            conns[remotePeer].send(remoteUserStream)
-                        }
+                        var conn = conns[remotePeer];
+                        conn.on('data',function(data){
+                            if(!remoteUserStream[remoteStream.id]){
+                            remoteUserStream[remoteStream.id]= data;
+                            conn.send(remoteUserStream);
+                            }
+                            for(guest_peer in conns){
+                            var connn = conns[guest_peer];
+                            connn.send(remoteUserStream);
+                            console.log('send'+ guest_peer)
+                            }
+                        })
+
                         
 
                         // 각 게스트에게 새로운 게스트만 전달하도록 캐싱
@@ -301,8 +309,17 @@
                     status.innerHTML = "Connection reset<br>Awaiting connection...";
                     conn = null;
                 });
-            }
-
+            }; // empty source
+            
+            // function removeVideo(stream) {
+            //     var video = document.querySelector('video');
+            //     //video.srcObject.getVideoTracks().forEach(track => {
+            //     //    track.stop()
+            //     //    video.srcObject.removeTrack(track);});
+            //     stream.removeTrack(videoTrack[0]);
+            //     video.src = window.URL.createObjectURL(userStream);
+            //     $('video').attr('src', '');
+            // }
             function addVideo(stream) {
                 console.log("add video");
                 var videoTag = document.createElement("video");
@@ -312,8 +329,34 @@
                 videoTag.setAttribute("width","500px"); // video size - width 추가
                 // videoTag.addEventListener("loadedmetadata", () => {
                 //     videoTag.play();
-                // });
+                // })
+
                 document.getElementById("video_grid").append(videoTag);
+            }
+            function addHostVideo(stream) {
+                console.log("add video");
+                var frame = document.createElement("div");
+                var text = document.createElement("div");
+                text.style.paddingTop = "20px";
+                text.style.paddingLeft = "20px";
+                text.innerHTML.fontWeight = "bold";
+                text.innerHTML.fontsize = "40px";
+
+                text.innerHTML = "HOST";
+                var videoTag = document.createElement("video");
+                videoTag.srcObject = stream;
+                videoTag.muted = true;
+                videoTag.autoplay = true;
+                videoTag.setAttribute("width","500px"); // video size - width 추가
+                // videoTag.addEventListener("loadedmetadata", () => {
+                //     videoTag.play();
+                // });
+                videoTag.style.poistion = "relative";
+                text.style.position = "absolute";
+
+                frame.append(text);
+                frame.append(videoTag);
+                document.getElementById("video_grid").append(frame);
             }
 
             function addMessage(msg) {
