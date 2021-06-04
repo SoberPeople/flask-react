@@ -50,6 +50,7 @@ class GazeTracking(object):
             self.eye_left = Eye(frame, landmarks, 0, self.calibration)
             self.eye_right = Eye(frame, landmarks, 1, self.calibration)
 
+
         except IndexError:
             self.eye_left = None
             self.eye_right = None
@@ -145,6 +146,18 @@ class GazeTracking(object):
     #     if self.pupils_located:
     #         blinking_ratio = (self.eye_left.blinking + self.eye_right.blinking) / 2
     #         return blinking_ratio > 3.8
+    
+    def head_direction(self):
+        """Returns true if the user closes his eyes"""
+        left_ear=landmarks.part(2)
+        right_ear=landmarks.part(16)
+        nose=landmarks.part(30)
+        head_ratio= abs(left_ear-nose)/abs(right_ear-nose)
+
+        if head_ratio > 1:
+            return right
+        if head_ration < 1:
+            return left
 
     def annotated_frame(self):
         """Returns the main frame with pupils highlighted"""
