@@ -116,6 +116,9 @@ def detection():
                             cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
                 #147, 58, 31
 
+                if (os.path.isfile(output_path)) :
+                    output_path = os.path.join(output_dir, str(userId) + str(now) + "_1.jpg")
+                
                 cv2.imwrite(output_path, frame)
                 return json.dumps({"cheat": 1, "isHand":1, "numHands":len(results)})
 
@@ -174,11 +177,8 @@ def detection():
                         cv2.FONT_HERSHEY_DUPLEX, 1.6, (0, 80, 0), 2)
 
             cv2.imwrite(output_path, frame)
-            return json.dumps({"cheat": 1})
+            return json.dumps({"cheat": 2})
 
-        #     return json.dumps({"cheat": 1, "output_path": output_path})
-
-        # return json.dumps({"cheat": 1})
 
 
 if __name__ == "__main__":
