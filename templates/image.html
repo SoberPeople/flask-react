@@ -10,17 +10,21 @@
 	</head>
 	<body class = "is-preload">
         <!-- Wrapper -->
-		<div id="wrapper">
+	<div id="wrapper">
+            {% if count==0 %}
+                <div style="position: fixed; top:200px"><h2>아직 부정행위를 한 사람이 없습니다!</h2></div>
+            {% else %}
             <div id="img_wrapper">
                 <div class = "grid-container">
-                {% for pic in pics %}
-                    <div class="location-listing">                  
-                        <img src="{{ url_for('static', filename = 'output_images/' + pic) }}" height = 300px />
-                        <div>{{pic}}</div>
+                    {% for pic in pics %}
+                        <div class="location-listing">                  
+                            <img src="{{ url_for('static', filename = 'output_images/' + pic) }}" height = 300px />
+                            <div>{{pic}}</div>
 
-                    </div>
+                        </div>
                                 
-                {% endfor %}
+                    {% endfor %}
+                {% endif %}
                 </div>
             </div>
         
