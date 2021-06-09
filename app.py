@@ -33,7 +33,7 @@ def image():
     images = os.listdir('./static/output_images')
     # images = os.listdir('./output_images')
     print(images)
-    return render_template('image.html', pics = images)
+    return render_template('image.html', pics=images, count=len(images))
 
 
 network = 'normal'
