@@ -28,11 +28,18 @@ def host():
 def guest():
     return render_template('guest.html')
 
+@app.route('/test/image')
+def image():
+    images = os.listdir('./static/output_images')
+    # images = os.listdir('./output_images')
+    print(images)
+    return render_template('image.html', pics = images)
+
 
 network = 'normal'
 size = 416
 confidence = 0.25
-output_dir = './output_images'
+output_dir = './static/output_images'
 os.makedirs(output_dir, exist_ok=True)
 
 
