@@ -1785,3 +1785,36 @@ body.is-article-visible #footer {
 body.is-preload #footer {
   opacity: 0;
 }
+
+/* 추가 */
+
+#img_wrapper{
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.grid-container{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(auto-fill, 1fr);
+  align-items: center; 
+  justify-content: center;
+  /* place-items: center; */
+  /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-rows: repeat(3, minmax(300px, 1fr)); */
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  grid-row-gap: 1em;
+  grid-column-gap: 0.5em;
+}
+
+.location-listing{
+  position: relative;
+  overflow: hidden;
+  margin: 20px;
+  /* padding: auto; */
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
